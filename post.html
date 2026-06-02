@@ -311,6 +311,7 @@ async function loadHistory() {
   const { data, error } = await client
     .from('comments').select('*')
     .eq('session_id', sessionId)
+    .eq('is_hidden', false)
     .order('created_at', { ascending: false })
     .limit(50);
   if (error || !data || !data.length) {
