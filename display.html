@@ -102,9 +102,6 @@ document.getElementById('stats').style.color = fgColor;
 
 if (postUrl) {
   new QRCode(document.getElementById("qr-canvas"), { text: postUrl, width: 120, height: 120, colorDark: fgColor, colorLight: "#00000000" });
-    width: 120, margin: 2,
-    color: { dark: fgColor, light: '#00000000' }
-  });
 } else {
   document.getElementById('qr-box').style.display = 'none';
 }
