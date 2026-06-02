@@ -48,14 +48,13 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* セッション一覧 */
   .session-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
   .session-card {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px; padding: 16px 18px;
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
   }
-  .session-card.active-card { border-color: #4f46e5; background: rgba(79,70,229,0.08); }
+  .session-card.inactive { opacity: 0.5; border-color: rgba(255,255,255,0.06); }
   .session-info { flex: 1; min-width: 0; }
   .session-id-badge {
     font-size: 0.72rem; background: rgba(255,255,255,0.1);
@@ -64,21 +63,43 @@
   }
   .session-title { font-size: 1rem; font-weight: 700; }
   .session-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
-  .session-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  .btn {
-    padding: 8px 16px; font-size: 0.85rem; font-weight: 700;
-    border-radius: 8px; border: none; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s;
-    white-space: nowrap;
+  /* ON/OFFトグル */
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .toggle-label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+  .toggle-switch {
+    position: relative; width: 44px; height: 24px; cursor: pointer;
   }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary   { background: #4f46e5; color: #fff; }
-  .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
-  .btn-danger    { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
-  .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute; inset: 0; border-radius: 12px;
+    background: rgba(255,255,255,0.15); transition: background 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-track { background: #22c55e; }
+  .toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; transition: transform 0.2s;
+  }
+  .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(20px); }
+  .status-badge {
+    font-size: 0.72rem; padding: 2px 10px; border-radius: 20px; font-weight: 700;
+  }
+  .status-badge.on  { background: rgba(34,197,94,0.15);  color: #22c55e; }
+  .status-badge.off { background: rgba(239,68,68,0.15);  color: #ef4444; }
 
-  /* 編集フォーム */
+  .session-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+  .url-section { margin-top: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px 14px; }
+  .url-section p { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-bottom: 5px; letter-spacing: 0.05em; }
+  .url-line { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .url-text { font-size: 0.8rem; color: #7df9ff; font-family: monospace; flex: 1; word-break: break-all; }
+  .copy-btn {
+    padding: 4px 10px; font-size: 0.75rem;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px; color: rgba(255,255,255,0.6); cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
+  }
+
   .edit-form {
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px; padding: 20px; margin-bottom: 24px; display: none;
@@ -97,27 +118,22 @@
   .field textarea { resize: vertical; min-height: 60px; }
   .field .hint { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 4px; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
   .speed-row { display: flex; align-items: center; gap: 12px; }
   .speed-row input[type=range] { flex: 1; accent-color: #4f46e5; }
   .speed-val { font-size: 0.9rem; font-weight: 700; min-width: 36px; text-align: right; }
-
   .color-row { display: flex; align-items: center; gap: 10px; }
   .color-row input[type=color] { width: 40px; height: 34px; border: none; background: none; cursor: pointer; border-radius: 6px; }
 
-  /* URL表示 */
-  .url-section { margin-top: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 14px; }
-  .url-section p { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-bottom: 6px; letter-spacing: 0.05em; }
-  .url-line { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .url-text { font-size: 0.8rem; color: #7df9ff; font-family: monospace; flex: 1; word-break: break-all; }
-  .copy-btn {
-    padding: 4px 10px; font-size: 0.75rem;
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 6px; color: rgba(255,255,255,0.6); cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
+  .btn {
+    padding: 8px 16px; font-size: 0.85rem; font-weight: 700;
+    border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s; white-space: nowrap;
   }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary   { background: #4f46e5; color: #fff; }
+  .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+  .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 
-  /* コメント管理 */
   .session-select-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .session-select-row label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
   .session-select-row select {
@@ -169,19 +185,16 @@
     <h1>⚙️ 弾幕管理画面</h1>
     <button class="logout-btn" onclick="doLogout()">ログアウト</button>
   </div>
-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('sessions')">セッション管理</button>
     <button class="tab" onclick="switchTab('comments')">コメント管理</button>
   </div>
 
-  <!-- セッション管理 -->
   <div class="panel active" id="panel-sessions">
     <div style="margin-bottom:16px">
       <button class="btn btn-primary" onclick="openNewForm()">＋ 新規セッション作成</button>
     </div>
 
-    <!-- 編集/新規フォーム -->
     <div class="edit-form" id="edit-form">
       <p class="form-title" id="form-title">新規セッション作成</p>
       <div class="field">
@@ -237,7 +250,6 @@
     </div>
   </div>
 
-  <!-- コメント管理 -->
   <div class="panel" id="panel-comments">
     <div class="session-select-row">
       <label>セッション：</label>
@@ -274,7 +286,6 @@ let allComments = [];
 let currentFilter = 'all';
 let editingId = null;
 
-// ---- ログイン ----
 async function doLogin() {
   const pw = document.getElementById('pw-input').value;
   const { data, error } = await client.from('admin_settings').select('value').eq('key','password').single();
@@ -296,7 +307,6 @@ if (sessionStorage.getItem('admin_ok')) {
   loadSessions();
 }
 
-// ---- タブ ----
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['sessions','comments'][i]===name));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -304,7 +314,6 @@ function switchTab(name) {
   if (name==='comments') populateSessionSelect();
 }
 
-// ---- セッション一覧 ----
 async function loadSessions() {
   const { data } = await client.from('sessions').select('*').order('created_at', { ascending: false });
   sessions = data || [];
@@ -314,12 +323,25 @@ async function loadSessions() {
 function renderSessions() {
   const grid = document.getElementById('session-grid');
   if (!sessions.length) { grid.innerHTML = '<p class="empty">セッションがありません。新規作成してください。</p>'; return; }
-  grid.innerHTML = sessions.map(s => `
-    <div class="session-card">
+  grid.innerHTML = sessions.map(s => {
+    const isActive = s.is_active !== false;
+    return `
+    <div class="session-card ${isActive ? '' : 'inactive'}" id="card-${escHtml(s.id)}">
       <div class="session-info">
-        <span class="session-id-badge">${escHtml(s.id)}</span>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <span class="session-id-badge">${escHtml(s.id)}</span>
+          <span class="status-badge ${isActive ? 'on' : 'off'}">${isActive ? 'ON' : 'OFF'}</span>
+        </div>
         <div class="session-title">${escHtml(s.session_name)}</div>
         ${s.event_name ? `<div class="session-sub">${escHtml(s.event_name)}</div>` : ''}
+        <div class="toggle-row" style="margin-top:10px">
+          <span class="toggle-label">投稿受付</span>
+          <label class="toggle-switch">
+            <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleSession('${escHtml(s.id)}', this.checked)" />
+            <span class="toggle-track"></span>
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
         <div class="url-section">
           <p>ディスプレイURL</p>
           <div class="url-line">
@@ -337,11 +359,19 @@ function renderSessions() {
       <div class="session-actions">
         <button class="btn btn-secondary btn-sm" onclick="openEditForm('${escHtml(s.id)}')">編集</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-// ---- フォーム ----
+async function toggleSession(id, isActive) {
+  const { error } = await client.from('sessions').update({ is_active: isActive }).eq('id', id);
+  if (error) { toast('更新エラー'); return; }
+  const idx = sessions.findIndex(s => s.id === id);
+  if (idx !== -1) sessions[idx].is_active = isActive;
+  renderSessions();
+  toast(isActive ? '✅ ONにしました' : '⛔ OFFにしました');
+}
+
 function openNewForm() {
   editingId = null;
   document.getElementById('form-title').textContent = '新規セッション作成';
@@ -390,18 +420,14 @@ async function saveSession() {
   const bg    = document.getElementById('f-bg').value;
   const fg    = document.getElementById('f-fg').value;
   const speed = parseFloat(document.getElementById('f-speed').value);
-
   if (!id) { toast('セッションIDを入力してください'); return; }
-
   const payload = { session_name: name, event_name: event, description: desc, bg_color: bg, fg_color: fg, speed };
-
   let error;
   if (editingId) {
     ({ error } = await client.from('sessions').update(payload).eq('id', editingId));
   } else {
-    ({ error } = await client.from('sessions').insert({ id, ...payload }));
+    ({ error } = await client.from('sessions').insert({ id, ...payload, is_active: true }));
   }
-
   if (error) { toast('保存エラー: ' + error.message); return; }
   toast('保存しました！');
   closeForm();
@@ -413,7 +439,6 @@ function syncPickerFromText(base) {
   if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(base+'-picker').value = v;
 }
 
-// ---- コメント管理 ----
 function populateSessionSelect() {
   const sel = document.getElementById('comment-session-select');
   sel.innerHTML = '<option value="">選択してください</option>' +
