@@ -12,10 +12,15 @@
 
   #session-label {
     position: fixed; top: 18px; left: 24px; z-index: 20;
-    display: flex; flex-direction: column; gap: 3px;
+    display: flex; flex-direction: column; gap: 4px;
   }
-  #session-name { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.08em; }
-  #event-name   { font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.5; }
+  #session-name { font-size: 2.1rem; font-weight: 700; letter-spacing: 0.08em; }
+  #event-name   { font-size: 1.5rem; letter-spacing: 0.06em; opacity: 0.5; }
+
+  #stats {
+    position: fixed; top: 18px; right: 24px; z-index: 20;
+    font-size: 0.72rem; opacity: 0.25; letter-spacing: 0.05em;
+  }
 
   #description-bar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
@@ -32,27 +37,15 @@
   }
   #qr-label { font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; opacity: 0.6; }
 
-  #stats {
-    position: fixed; bottom: 20px; left: 24px;
-    font-size: 0.72rem; opacity: 0.25; letter-spacing: 0.05em;
-  }
-
   .danmaku {
-    position: absolute; white-space: nowrap;
+    position: absolute; white-space: pre;
     font-weight: 700; pointer-events: none; will-change: transform;
     text-shadow: 2px 2px 6px rgba(0,0,0,0.85);
+    line-height: 1.4;
   }
   .danmaku.is-question {
     border-bottom: 2px solid #fbbf24;
     padding-bottom: 2px;
-  }
-  .reaction-burst {
-    position: absolute; font-size: 3rem; pointer-events: none;
-    animation: burst 1.5s ease-out forwards;
-  }
-  @keyframes burst {
-    0%   { transform: scale(0.5) translateY(0);     opacity: 1; }
-    100% { transform: scale(2)   translateY(-120px); opacity: 0; }
   }
 </style>
 </head>
@@ -62,12 +55,12 @@
   <span id="session-name">基調講演</span>
   <span id="event-name"></span>
 </div>
-<div id="description-bar" id="desc-bar"></div>
+<div id="stats">0 コメント</div>
+<div id="description-bar"></div>
 <div id="qr-box">
   <div id="qr-canvas"></div>
   <div id="qr-label">コメントはこちら</div>
 </div>
-<div id="stats">0 コメント</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -76,19 +69,25 @@ const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ASIIOGkT9W55Ts8vo-HFkQ_dnqxpo3S';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const params   = new URLSearchParams(window.location.search);
-const session  = params.get('session')  || '基調講演';
-const event    = params.get('event')    || '';
-const postUrl  = params.get('post')     || '';
-const desc     = params.get('desc')     || '';
-const bgColor  = params.get('bg')       || '#000000';
-const fgColor  = params.get('fg')       || '#ffffff';
-const speed    = parseFloat(params.get('speed') || '1');
+const params  = new URLSearchParams(window.location.search);
+const session = params.get('session') || '基調講演';
+const event   = params.get('event')   || '';
+const postUrl = params.get('post')    || '';
+const desc    = params.get('desc')    || '';
+const bgColor = params.get('bg')      || '#000000';
+const fgColor = params.get('fg')      || '#ffffff';
+const speed   = parseFloat(params.get('speed') || '1');
 
 document.body.style.background = bgColor;
 document.getElementById('session-name').style.color = fgColor;
 document.getElementById('session-name').textContent = session;
-if (event) { document.getElementById('event-name').textContent = event; document.getElementById('event-name').style.color = fgColor; }
+document.getElementById('stats').style.color = fgColor;
+
+if (event) {
+  const el = document.getElementById('event-name');
+  el.textContent = event;
+  el.style.color = fgColor;
+}
 
 if (desc) {
   const bar = document.getElementById('description-bar');
@@ -98,10 +97,12 @@ if (desc) {
 }
 
 document.getElementById('qr-label').style.color = fgColor;
-document.getElementById('stats').style.color = fgColor;
 
 if (postUrl) {
-  new QRCode(document.getElementById("qr-canvas"), { text: postUrl, width: 120, height: 120, colorDark: fgColor, colorLight: "#00000000" });
+  new QRCode(document.getElementById("qr-canvas"), {
+    text: postUrl, width: 120, height: 120,
+    colorDark: fgColor, colorLight: "#00000000"
+  });
 } else {
   document.getElementById('qr-box').style.display = 'none';
 }
@@ -116,31 +117,24 @@ function getTrackY(i) {
   return Math.floor((screen.offsetHeight - 60) / TRACKS * i) + 20;
 }
 
-function launch(text, isQuestion) {
-  const el = document.createElement('div');
-  el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
-  el.textContent = (isQuestion ? '❓ ' : '') + text;
-  el.style.color = fgColor;
+function pickTrack() {
+  let track = 0, earliest = Infinity;
+  const now = Date.now();
+  for (let i = 0; i < TRACKS; i++) {
+    if (trackLastEnd[i] < earliest) { earliest = trackLastEnd[i]; track = i; }
+  }
+  return track;
+}
 
-  const baseSize = 2.2;
-  el.style.fontSize = baseSize + 'rem';
+function scrollElement(el, track) {
   document.body.appendChild(el);
   const w = el.offsetWidth;
   document.body.removeChild(el);
 
-  const now = Date.now();
-  let track = 0, earliest = Infinity;
-  for (let i = 0; i < TRACKS; i++) {
-    if (trackLastEnd[i] < earliest) { earliest = trackLastEnd[i]; track = i; }
-  }
   const baseDuration = 12;
   const duration = (baseDuration / speed) + Math.random() * (3 / speed);
-  trackLastEnd[track] = now + duration * 1000;
+  trackLastEnd[track] = Date.now() + duration * 1000;
 
-  el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
-  el.textContent = (isQuestion ? '❓ ' : '') + text;
-  el.style.color = fgColor;
-  el.style.fontSize = baseSize + 'rem';
   el.style.top = getTrackY(track) + 'px';
   el.style.left = screen.offsetWidth + 'px';
   el.style.transition = `transform ${duration}s linear`;
@@ -150,6 +144,22 @@ function launch(text, isQuestion) {
     el.style.transform = `translateX(${-(screen.offsetWidth + w + 100)}px)`;
   }));
   setTimeout(() => el.remove(), (duration + 1) * 1000);
+}
+
+function launch(text, isQuestion) {
+  // テキストのみ・HTMLは無効化・改行を保持
+  const safeText = (isQuestion ? '❓ ' : '') + String(text)
+    .replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+
+  const el = document.createElement('div');
+  el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
+  el.style.color = fgColor;
+  el.style.fontSize = '2.2rem';
+  // textContentで設定することでHTMLは一切効かない、改行はwhite-space:preで反映
+  el.textContent = (isQuestion ? '❓ ' : '') + text;
+
+  const track = pickTrack();
+  scrollElement(el, track);
 
   count++;
   stats.textContent = count + ' コメント';
@@ -158,16 +168,18 @@ function launch(text, isQuestion) {
 function launchReaction(type) {
   const map = { '同意！':'👍', '笑':'😂', 'なるほど！':'💡', '？':'🤔' };
   const emoji = map[type] || type;
-  for (let j = 0; j < 4; j++) {
+
+  // 複数の絵文字を少しずらしたタイミングで流す
+  for (let j = 0; j < 3; j++) {
     setTimeout(() => {
       const el = document.createElement('div');
-      el.className = 'reaction-burst';
+      el.className = 'danmaku';
       el.textContent = emoji;
-      el.style.left   = (Math.random() * 85 + 5) + '%';
-      el.style.bottom = (Math.random() * 40 + 10) + '%';
-      screen.appendChild(el);
-      setTimeout(() => el.remove(), 1600);
-    }, j * 200);
+      el.style.color = fgColor;
+      el.style.fontSize = '2.8rem';
+      const track = pickTrack();
+      scrollElement(el, track);
+    }, j * 300);
   }
 }
 
