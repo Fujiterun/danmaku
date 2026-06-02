@@ -152,6 +152,18 @@
   .comment-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 4px; white-space: pre-wrap; }
   .comment-meta { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
   .q-badge { font-size: 0.7rem; padding: 2px 8px; background: rgba(251,191,36,0.2); color: #fbbf24; border-radius: 4px; margin-left: 6px; }
+  .agree-badge { font-size: 0.7rem; padding: 2px 8px; background: rgba(79,70,229,0.15); color: #818cf8; border-radius: 4px; margin-left: 6px; }
+  .hidden-badge { font-size: 0.7rem; padding: 2px 8px; background: rgba(239,68,68,0.15); color: #ef4444; border-radius: 4px; margin-left: 6px; }
+  .comment-item.is-hidden { opacity: 0.4; }
+  .comment-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .action-btn {
+    padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); transition: all 0.15s;
+  }
+  .action-btn:hover { background: rgba(255,255,255,0.12); }
+  .action-btn.hide-btn { border-color: rgba(239,68,68,0.3); color: #ef4444; background: rgba(239,68,68,0.08); }
+  .action-btn.show-btn { border-color: rgba(34,197,94,0.3); color: #22c55e; background: rgba(34,197,94,0.08); }
   .empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.9rem; padding: 40px 0; }
   .toast {
     position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -264,6 +276,7 @@
     <div class="filter-row">
       <button class="filter-btn active" onclick="filterComments('all',this)">すべて</button>
       <button class="filter-btn" onclick="filterComments('question',this)">❓ 質問のみ</button>
+      <button class="filter-btn" onclick="filterComments('hidden',this)">🚫 非表示のみ</button>
     </div>
     <div class="comment-list" id="comment-list"><p class="empty">セッションを選択してください</p></div>
   </div>
@@ -487,14 +500,36 @@ function filterComments(type, btn) {
   renderComments();
 }
 
+async function toggleHidden(id, hide) {
+  const { error } = await client.from('comments').update({ is_hidden: hide }).eq('id', id);
+  if (error) { toast('更新エラー'); return; }
+  const idx = allComments.findIndex(c => c.id === id);
+  if (idx !== -1) allComments[idx].is_hidden = hide;
+  renderComments();
+  toast(hide ? '🚫 非表示にしました' : '✅ 表示に戻しました');
+}
+
 function renderComments() {
   const list = document.getElementById('comment-list');
-  const filtered = currentFilter === 'question' ? allComments.filter(c => c.is_question) : allComments;
+  let filtered = allComments;
+  if (currentFilter === 'question') filtered = allComments.filter(c => c.is_question);
+  else if (currentFilter === 'hidden') filtered = allComments.filter(c => c.is_hidden);
   if (!filtered.length) { list.innerHTML = '<p class="empty">コメントはまだありません</p>'; return; }
   list.innerHTML = filtered.map(c => `
-    <div class="comment-item ${c.is_question ? 'is-q' : ''}">
+    <div class="comment-item ${c.is_question ? 'is-q' : ''} ${c.is_hidden ? 'is-hidden' : ''}">
       <div class="comment-text">${escHtml(c.text)}</div>
-      <div class="comment-meta">${new Date(c.created_at).toLocaleString('ja-JP')}${c.is_question ? '<span class="q-badge">❓ 質問</span>' : ''}</div>
+      <div class="comment-meta">
+        ${new Date(c.created_at).toLocaleString('ja-JP')}
+        ${c.is_question ? '<span class="q-badge">❓ 質問</span>' : ''}
+        ${c.agree_count ? `<span class="agree-badge">👍 ${c.agree_count}</span>` : ''}
+        ${c.is_hidden ? '<span class="hidden-badge">🚫 非表示</span>' : ''}
+      </div>
+      <div class="comment-actions">
+        ${c.is_hidden
+          ? `<button class="action-btn show-btn" onclick="toggleHidden('${c.id}', false)">✅ 表示に戻す</button>`
+          : `<button class="action-btn hide-btn" onclick="toggleHidden('${c.id}', true)">🚫 非表示にする</button>`
+        }
+      </div>
     </div>`).join('');
 }
 
