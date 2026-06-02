@@ -64,13 +64,13 @@
 </div>
 <div id="description-bar" id="desc-bar"></div>
 <div id="qr-box">
-  <canvas id="qr-canvas"></canvas>
+  <div id="qr-canvas"></div>
   <div id="qr-label">コメントはこちら</div>
 </div>
 <div id="stats">0 コメント</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ASIIOGkT9W55Ts8vo-HFkQ_dnqxpo3S';
@@ -101,7 +101,7 @@ document.getElementById('qr-label').style.color = fgColor;
 document.getElementById('stats').style.color = fgColor;
 
 if (postUrl) {
-  QRCode.toCanvas(document.getElementById('qr-canvas'), postUrl, {
+  new QRCode(document.getElementById("qr-canvas"), { text: postUrl, width: 120, height: 120, colorDark: fgColor, colorLight: "#00000000" });
     width: 120, margin: 2,
     color: { dark: fgColor, light: '#00000000' }
   });
