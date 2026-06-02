@@ -16,8 +16,21 @@
   .header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
   .event-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; }
   .page-title  { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
+
+  /* 無効画面 */
+  #disabled-screen {
+    display: none; text-align: center;
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 16px; padding: 32px 24px; max-width: 400px; width: 100%;
+  }
+  #disabled-screen .icon { font-size: 2.5rem; margin-bottom: 12px; }
+  #disabled-screen p { color: #ef4444; font-size: 1rem; font-weight: 700; }
+  #disabled-screen small { color: rgba(255,255,255,0.3); font-size: 0.82rem; margin-top: 8px; display: block; }
+
+  #post-content { display: none; width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
   .card {
-    width: 100%; max-width: 400px;
+    width: 100%;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
   }
@@ -59,7 +72,7 @@
   .send-btn:active { transform: scale(0.97); background: #3730a3; }
   .send-btn:disabled { background: #333; color: rgba(255,255,255,0.3); cursor: default; }
   .reactions-title { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; text-align: center; }
-  .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
+  .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
   .react-btn {
     padding: 18px 0 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px; color: #fff; font-family: 'Noto Sans JP', sans-serif; cursor: pointer;
@@ -80,31 +93,42 @@
 </style>
 </head>
 <body>
+
 <div class="header">
   <p class="event-title" id="event-title">読み込み中...</p>
   <p class="page-title">コメントを送ろう</p>
 </div>
-<div class="card">
-  <label>コメント（55文字以内）</label>
-  <textarea id="text" placeholder="一言どうぞ..." maxlength="55"></textarea>
-  <div class="counter-row">
-    <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
-    <span class="counter-num" id="counter">0 / 55</span>
-  </div>
-  <div class="question-toggle" id="q-toggle">
-    <span class="q-icon">❓</span>
-    <span class="q-text">質問として送る</span>
-    <span class="q-check" id="q-check"></span>
-  </div>
-  <button class="send-btn" id="send-btn">画面に流す 🚀</button>
+
+<div id="disabled-screen">
+  <div class="icon">⛔</div>
+  <p>無効なセッションです</p>
+  <small>このセッションは現在投稿を受け付けていません</small>
 </div>
-<p class="reactions-title">リアクションを送る</p>
-<div class="reactions">
-  <button class="react-btn" data-type="同意！"><span class="react-emoji">👍</span><span class="react-label">同意！</span></button>
-  <button class="react-btn" data-type="笑"><span class="react-emoji">😂</span><span class="react-label">笑</span></button>
-  <button class="react-btn" data-type="なるほど！"><span class="react-emoji">💡</span><span class="react-label">なるほど！</span></button>
-  <button class="react-btn" data-type="？"><span class="react-emoji">🤔</span><span class="react-label">？</span></button>
+
+<div id="post-content">
+  <div class="card">
+    <label>コメント（55文字以内）</label>
+    <textarea id="text" placeholder="一言どうぞ..." maxlength="55"></textarea>
+    <div class="counter-row">
+      <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+      <span class="counter-num" id="counter">0 / 55</span>
+    </div>
+    <div class="question-toggle" id="q-toggle">
+      <span class="q-icon">❓</span>
+      <span class="q-text">質問として送る</span>
+      <span class="q-check" id="q-check"></span>
+    </div>
+    <button class="send-btn" id="send-btn">画面に流す 🚀</button>
+  </div>
+  <p class="reactions-title">リアクションを送る</p>
+  <div class="reactions">
+    <button class="react-btn" data-type="同意！"><span class="react-emoji">👍</span><span class="react-label">同意！</span></button>
+    <button class="react-btn" data-type="笑"><span class="react-emoji">😂</span><span class="react-label">笑</span></button>
+    <button class="react-btn" data-type="なるほど！"><span class="react-emoji">💡</span><span class="react-label">なるほど！</span></button>
+    <button class="react-btn" data-type="？"><span class="react-emoji">🤔</span><span class="react-label">？</span></button>
+  </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -117,8 +141,15 @@ const params    = new URLSearchParams(window.location.search);
 const sessionId = params.get('id') || 'default';
 
 async function init() {
-  const { data } = await client.from('sessions').select('session_name').eq('id', sessionId).single();
-  document.getElementById('event-title').textContent = data ? data.session_name : sessionId;
+  const { data } = await client.from('sessions').select('session_name, is_active').eq('id', sessionId).single();
+  if (!data || data.is_active === false) {
+    document.getElementById('event-title').textContent = data ? data.session_name : sessionId;
+    document.getElementById('disabled-screen').style.display = 'block';
+    document.getElementById('post-content').style.display = 'none';
+    return;
+  }
+  document.getElementById('event-title').textContent = data.session_name;
+  document.getElementById('post-content').style.display = 'flex';
 }
 init();
 
@@ -157,6 +188,13 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   if (!text) return;
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
+  // 送信前に再度is_activeを確認
+  const { data: check } = await client.from('sessions').select('is_active').eq('id', sessionId).single();
+  if (!check || check.is_active === false) {
+    document.getElementById('disabled-screen').style.display = 'block';
+    document.getElementById('post-content').style.display = 'none';
+    return;
+  }
   const { error } = await client.from('comments').insert({ text, is_question: isQuestion, session_id: sessionId });
   btn.disabled = false;
   if (error) { toast('エラーが発生しました'); return; }
