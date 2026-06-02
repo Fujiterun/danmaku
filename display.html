@@ -98,16 +98,18 @@ function startRealtime(sessionId, fgColor, speed) {
   const screen = document.getElementById('screen');
   const stats  = document.getElementById('stats');
   let count = 0;
-  const TRACKS = 10;
+  const TRACKS = 20;
   const trackLastEnd = new Array(TRACKS).fill(0);
 
   function getTrackY(i) {
-    // 上部：セッション名エリアを避ける（約160px）
-    // 下部：QRコード・descriptionバーを避ける（約220px）
     const topMargin = 160;
     const bottomMargin = 220;
     const usableHeight = screen.offsetHeight - topMargin - bottomMargin;
-    return topMargin + Math.floor(usableHeight / TRACKS * i);
+    // 偶数トラック（0,2,4...）は前半10本、奇数トラック（1,3,5...）は半トラック分下にオフセット
+    const halfTracks = TRACKS / 2;
+    const trackIndex = Math.floor(i / 2);
+    const offset = (i % 2 === 1) ? Math.floor(usableHeight / halfTracks / 2) : 0;
+    return topMargin + Math.floor(usableHeight / halfTracks * trackIndex) + offset;
   }
 
   function pickTrack() {
