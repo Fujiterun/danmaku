@@ -9,7 +9,6 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #0f0f1a; color: #fff; font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; }
 
-  /* ログイン */
   #login-screen {
     min-height: 100vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 16px; padding: 24px;
@@ -18,8 +17,8 @@
   #login-screen input {
     width: 100%; max-width: 320px; padding: 12px 16px;
     background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px; color: #fff; font-size: 1rem; font-family: 'Noto Sans JP', sans-serif;
-    outline: none; text-align: center; letter-spacing: 0.15em;
+    border-radius: 10px; color: #fff; font-size: 1rem;
+    font-family: 'Noto Sans JP', sans-serif; outline: none; text-align: center; letter-spacing: 0.15em;
   }
   #login-screen button {
     width: 100%; max-width: 320px; padding: 13px;
@@ -28,79 +27,105 @@
   }
   #login-err { color: #ef4444; font-size: 0.85rem; }
 
-  /* メイン */
-  #main-screen { display: none; padding: 24px; max-width: 800px; margin: 0 auto; }
+  #main-screen { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
   .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
   .top-bar h1 { font-size: 1.2rem; letter-spacing: 0.06em; }
-  .top-bar .logout-btn {
+  .logout-btn {
     padding: 6px 14px; font-size: 0.8rem;
     background: transparent; color: rgba(255,255,255,0.4);
     border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer;
     font-family: 'Noto Sans JP', sans-serif;
   }
 
-  /* タブ */
   .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .tab {
     padding: 10px 18px; font-size: 0.9rem; cursor: pointer;
     color: rgba(255,255,255,0.4); border-bottom: 2px solid transparent;
-    font-family: 'Noto Sans JP', sans-serif; background: none; border-top: none; border-left: none; border-right: none;
-    transition: color 0.15s;
+    font-family: 'Noto Sans JP', sans-serif; background: none;
+    border-top: none; border-left: none; border-right: none; transition: color 0.15s;
   }
   .tab.active { color: #fff; border-bottom-color: #4f46e5; }
-
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* セクション */
-  .section { margin-bottom: 28px; }
-  .section-title { font-size: 0.78rem; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; margin-bottom: 12px; }
+  /* セッション一覧 */
+  .session-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .session-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .session-card.active-card { border-color: #4f46e5; background: rgba(79,70,229,0.08); }
+  .session-info { flex: 1; min-width: 0; }
+  .session-id-badge {
+    font-size: 0.72rem; background: rgba(255,255,255,0.1);
+    padding: 2px 8px; border-radius: 4px; color: rgba(255,255,255,0.5);
+    font-family: monospace; margin-bottom: 4px; display: inline-block;
+  }
+  .session-title { font-size: 1rem; font-weight: 700; }
+  .session-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .session-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    padding: 8px 16px; font-size: 0.85rem; font-weight: 700;
+    border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary   { background: #4f46e5; color: #fff; }
+  .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+  .btn-danger    { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+  .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+  /* 編集フォーム */
+  .edit-form {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px; display: none;
+  }
+  .edit-form.open { display: block; }
+  .form-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: rgba(255,255,255,0.8); }
   .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
-  .field input[type=text], .field input[type=number], .field textarea {
+  .field label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+  .field input[type=text], .field textarea {
     width: 100%; padding: 10px 14px;
     background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 8px; color: #fff; font-size: 0.95rem;
     font-family: 'Noto Sans JP', sans-serif; outline: none;
   }
-  .field input[type=text]:focus, .field input[type=number]:focus, .field textarea:focus {
-    border-color: rgba(255,255,255,0.35);
-  }
-  .field textarea { resize: vertical; min-height: 72px; }
-  .field .hint { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 5px; }
+  .field input:focus, .field textarea:focus { border-color: rgba(255,255,255,0.35); }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .field .hint { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 4px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-  /* 速度スライダー */
   .speed-row { display: flex; align-items: center; gap: 12px; }
   .speed-row input[type=range] { flex: 1; accent-color: #4f46e5; }
   .speed-val { font-size: 0.9rem; font-weight: 700; min-width: 36px; text-align: right; }
 
-  /* カラー */
-  .color-row { display: flex; align-items: center; gap: 12px; }
-  .color-row input[type=color] { width: 44px; height: 36px; border: none; background: none; cursor: pointer; border-radius: 6px; }
-  .color-row input[type=text] { flex: 1; }
+  .color-row { display: flex; align-items: center; gap: 10px; }
+  .color-row input[type=color] { width: 40px; height: 34px; border: none; background: none; cursor: pointer; border-radius: 6px; }
 
-  /* URL preview */
-  .url-box {
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; padding: 12px 14px;
-    font-size: 0.78rem; color: rgba(255,255,255,0.5);
-    word-break: break-all; line-height: 1.6;
+  /* URL表示 */
+  .url-section { margin-top: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 14px; }
+  .url-section p { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-bottom: 6px; letter-spacing: 0.05em; }
+  .url-line { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .url-text { font-size: 0.8rem; color: #7df9ff; font-family: monospace; flex: 1; word-break: break-all; }
+  .copy-btn {
+    padding: 4px 10px; font-size: 0.75rem;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px; color: rgba(255,255,255,0.6); cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
   }
-  .url-box span { color: #7df9ff; }
 
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn {
-    padding: 11px 20px; font-size: 0.9rem; font-weight: 700;
-    border-radius: 10px; border: none; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s;
+  /* コメント管理 */
+  .session-select-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .session-select-row label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+  .session-select-row select {
+    padding: 8px 12px; background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+    color: #fff; font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; outline: none;
   }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: #4f46e5; color: #fff; }
-  .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
-  .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-
-  /* コメント一覧 */
-  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .filter-btn {
     padding: 6px 14px; font-size: 0.82rem;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
@@ -108,24 +133,15 @@
     font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s;
   }
   .filter-btn.active { background: rgba(79,70,229,0.25); border-color: #4f46e5; color: #fff; }
-
   .comment-list { display: flex; flex-direction: column; gap: 8px; }
   .comment-item {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px; padding: 12px 14px;
-    display: flex; align-items: flex-start; gap: 10px;
   }
   .comment-item.is-q { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); }
-  .comment-body { flex: 1; }
-  .comment-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 4px; }
+  .comment-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 4px; white-space: pre-wrap; }
   .comment-meta { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
-  .q-badge {
-    font-size: 0.7rem; padding: 2px 8px;
-    background: rgba(251,191,36,0.2); color: #fbbf24;
-    border-radius: 4px; white-space: nowrap; margin-top: 2px;
-    display: inline-block;
-  }
-
+  .q-badge { font-size: 0.7rem; padding: 2px 8px; background: rgba(251,191,36,0.2); color: #fbbf24; border-radius: 4px; margin-left: 6px; }
   .empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.9rem; padding: 40px 0; }
 
   .toast {
@@ -133,8 +149,7 @@
     transform: translateX(-50%) translateY(20px);
     background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
     color: #fff; padding: 10px 22px; border-radius: 50px;
-    font-size: 0.9rem; opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
+    font-size: 0.9rem; opacity: 0; transition: opacity 0.3s, transform 0.3s;
     pointer-events: none; white-space: nowrap; z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -142,7 +157,6 @@
 </head>
 <body>
 
-<!-- ログイン画面 -->
 <div id="login-screen">
   <h1>🔐 管理者ログイン</h1>
   <input type="password" id="pw-input" placeholder="パスワードを入力" />
@@ -150,7 +164,6 @@
   <p id="login-err"></p>
 </div>
 
-<!-- メイン画面 -->
 <div id="main-screen">
   <div class="top-bar">
     <h1>⚙️ 弾幕管理画面</h1>
@@ -158,87 +171,91 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('settings')">画面設定</button>
+    <button class="tab active" onclick="switchTab('sessions')">セッション管理</button>
     <button class="tab" onclick="switchTab('comments')">コメント管理</button>
   </div>
 
-  <!-- 設定パネル -->
-  <div class="panel active" id="panel-settings">
-    <div class="section">
-      <p class="section-title">セッション情報</p>
+  <!-- セッション管理 -->
+  <div class="panel active" id="panel-sessions">
+    <div style="margin-bottom:16px">
+      <button class="btn btn-primary" onclick="openNewForm()">＋ 新規セッション作成</button>
+    </div>
+
+    <!-- 編集/新規フォーム -->
+    <div class="edit-form" id="edit-form">
+      <p class="form-title" id="form-title">新規セッション作成</p>
+      <div class="field">
+        <label>セッションID（URLに使用・英数字とハイフンのみ）</label>
+        <input type="text" id="f-id" placeholder="koen1 / bunkakai-a" maxlength="30" />
+        <p class="hint">例：koen1 → display.html?id=koen1</p>
+      </div>
       <div class="field">
         <label>セッション名（最大100文字）</label>
-        <input type="text" id="s-session" maxlength="100" placeholder="基調講演" value="基調講演" />
+        <input type="text" id="f-name" placeholder="基調講演" maxlength="100" />
       </div>
       <div class="field">
         <label>イベント名（任意）</label>
-        <input type="text" id="s-event" placeholder="友の会サミット2026" />
+        <input type="text" id="f-event" placeholder="友の会サミット2026" />
       </div>
       <div class="field">
-        <label>ディスクリプション（下部に表示・登壇者名など）</label>
-        <textarea id="s-desc" placeholder="登壇：齋藤 一郎 / 路上博物館"></textarea>
+        <label>ディスクリプション（登壇者名など・下部に表示）</label>
+        <textarea id="f-desc" placeholder="登壇：齋藤 一郎 / 路上博物館"></textarea>
       </div>
-    </div>
-
-    <div class="section">
-      <p class="section-title">弾幕スタイル</p>
+      <div class="field-row">
+        <div class="field">
+          <label>背景色</label>
+          <div class="color-row">
+            <input type="color" id="f-bg-picker" value="#000000" oninput="document.getElementById('f-bg').value=this.value" />
+            <input type="text" id="f-bg" value="#000000" oninput="syncPickerFromText('f-bg')" />
+          </div>
+        </div>
+        <div class="field">
+          <label>文字色</label>
+          <div class="color-row">
+            <input type="color" id="f-fg-picker" value="#ffffff" oninput="document.getElementById('f-fg').value=this.value" />
+            <input type="text" id="f-fg" value="#ffffff" oninput="syncPickerFromText('f-fg')" />
+          </div>
+        </div>
+      </div>
       <div class="field">
-        <label>流れる速度（デフォルト = 1.0倍）</label>
+        <label>弾幕の速度（1.0 = デフォルト）</label>
         <div class="speed-row">
           <span style="font-size:0.8rem;color:rgba(255,255,255,0.35)">0.25x</span>
-          <input type="range" id="s-speed" min="0.25" max="3" step="0.25" value="1" oninput="updateSpeed(this.value)" />
+          <input type="range" id="f-speed" min="0.25" max="3" step="0.25" value="1" oninput="document.getElementById('f-speed-val').textContent=parseFloat(this.value).toFixed(2).replace(/\\.?0+$/,'')+'x'" />
           <span style="font-size:0.8rem;color:rgba(255,255,255,0.35)">3x</span>
-          <span class="speed-val" id="speed-val">1.0x</span>
+          <span class="speed-val" id="f-speed-val">1x</span>
         </div>
       </div>
-      <div class="field">
-        <label>背景色</label>
-        <div class="color-row">
-          <input type="color" id="s-bg-picker" value="#000000" oninput="syncColor('bg')" />
-          <input type="text"  id="s-bg" value="#000000" oninput="syncPicker('bg')" placeholder="#000000" />
-        </div>
-      </div>
-      <div class="field">
-        <label>文字色</label>
-        <div class="color-row">
-          <input type="color" id="s-fg-picker" value="#ffffff" oninput="syncColor('fg')" />
-          <input type="text"  id="s-fg" value="#ffffff" oninput="syncPicker('fg')" placeholder="#ffffff" />
-        </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn btn-primary" onclick="saveSession()">保存</button>
+        <button class="btn btn-secondary" onclick="closeForm()">キャンセル</button>
       </div>
     </div>
 
-    <div class="section">
-      <p class="section-title">投稿URL（スマホ用）</p>
-      <div class="field">
-        <label>post.html の公開URL</label>
-        <input type="text" id="s-post-url" placeholder="https://example.github.io/danmaku/post.html" />
-        <p class="hint">GitHub Pages等で公開後に入力するとQRコードが生成されます</p>
-      </div>
-    </div>
-
-    <div class="section">
-      <p class="section-title">生成されたURL</p>
-      <div class="url-box" id="url-preview">設定を入力してください</div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="buildUrl()">URLを生成・コピー</button>
-      <button class="btn btn-secondary" onclick="openDisplay()">プレビューで開く</button>
+    <div class="session-grid" id="session-grid">
+      <p class="empty">読み込み中...</p>
     </div>
   </div>
 
-  <!-- コメント管理パネル -->
+  <!-- コメント管理 -->
   <div class="panel" id="panel-comments">
-    <div class="filter-row">
-      <button class="filter-btn active" onclick="filterComments('all', this)">すべて</button>
-      <button class="filter-btn" onclick="filterComments('question', this)">❓ 質問のみ</button>
+    <div class="session-select-row">
+      <label>セッション：</label>
+      <select id="comment-session-select" onchange="loadComments()">
+        <option value="">選択してください</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="loadComments()">更新</button>
     </div>
-    <div class="btn-row" style="margin-bottom:16px">
-      <button class="btn btn-secondary" onclick="exportCSV('all')">CSVエクスポート（全件）</button>
-      <button class="btn btn-secondary" onclick="exportCSV('question')">CSVエクスポート（質問のみ）</button>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" onclick="exportCSV('all')">CSVエクスポート（全件）</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportCSV('question')">CSVエクスポート（質問のみ）</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterComments('all',this)">すべて</button>
+      <button class="filter-btn" onclick="filterComments('question',this)">❓ 質問のみ</button>
     </div>
     <div class="comment-list" id="comment-list">
-      <p class="empty">読み込み中...</p>
+      <p class="empty">セッションを選択してください</p>
     </div>
   </div>
 </div>
@@ -251,8 +268,11 @@ const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ASIIOGkT9W55Ts8vo-HFkQ_dnqxpo3S';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const BASE = location.href.replace('admin.html','');
+let sessions = [];
 let allComments = [];
 let currentFilter = 'all';
+let editingId = null;
 
 // ---- ログイン ----
 async function doLogin() {
@@ -260,83 +280,150 @@ async function doLogin() {
   const { data, error } = await client.from('admin_settings').select('value').eq('key','password').single();
   if (error || !data) { document.getElementById('login-err').textContent = '認証エラー'; return; }
   if (pw === data.value) {
-    sessionStorage.setItem('admin_ok', '1');
+    sessionStorage.setItem('admin_ok','1');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-screen').style.display = 'block';
-    loadComments();
+    loadSessions();
   } else {
     document.getElementById('login-err').textContent = 'パスワードが違います';
   }
 }
-
-function doLogout() {
-  sessionStorage.removeItem('admin_ok');
-  location.reload();
-}
-
-document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
+function doLogout() { sessionStorage.removeItem('admin_ok'); location.reload(); }
+document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 if (sessionStorage.getItem('admin_ok')) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('main-screen').style.display = 'block';
-  loadComments();
+  loadSessions();
 }
 
 // ---- タブ ----
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['settings','comments'][i] === name));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['sessions','comments'][i]===name));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'comments') loadComments();
+  document.getElementById('panel-'+name).classList.add('active');
+  if (name==='comments') populateSessionSelect();
 }
 
-// ---- 速度・色 ----
-function updateSpeed(v) {
-  document.getElementById('speed-val').textContent = parseFloat(v).toFixed(2).replace(/\.?0+$/, '') + 'x';
-}
-function syncColor(type) {
-  document.getElementById('s-' + type).value = document.getElementById('s-' + type + '-picker').value;
-}
-function syncPicker(type) {
-  const v = document.getElementById('s-' + type).value;
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('s-' + type + '-picker').value = v;
+// ---- セッション一覧 ----
+async function loadSessions() {
+  const { data } = await client.from('sessions').select('*').order('created_at', { ascending: false });
+  sessions = data || [];
+  renderSessions();
 }
 
-// ---- URL生成 ----
-function buildUrl() {
-  const session = document.getElementById('s-session').value || '基調講演';
-  const event   = document.getElementById('s-event').value;
-  const desc    = document.getElementById('s-desc').value;
-  const speed   = document.getElementById('s-speed').value;
-  const bg      = document.getElementById('s-bg').value;
-  const fg      = document.getElementById('s-fg').value;
-  const postUrl = document.getElementById('s-post-url').value;
-
-  const base = location.href.replace('admin.html', 'display.html');
-  const p = new URLSearchParams();
-  p.set('session', session);
-  if (event)   p.set('event', event);
-  if (desc)    p.set('desc', desc);
-  if (speed !== '1') p.set('speed', speed);
-  if (bg !== '#000000') p.set('bg', bg);
-  if (fg !== '#ffffff') p.set('fg', fg);
-  if (postUrl) p.set('post', postUrl);
-
-  const url = base + '?' + p.toString();
-  document.getElementById('url-preview').innerHTML = '<span>' + url + '</span>';
-  navigator.clipboard.writeText(url).then(() => toast('URLをコピーしました！'));
-  return url;
+function renderSessions() {
+  const grid = document.getElementById('session-grid');
+  if (!sessions.length) { grid.innerHTML = '<p class="empty">セッションがありません。新規作成してください。</p>'; return; }
+  grid.innerHTML = sessions.map(s => `
+    <div class="session-card">
+      <div class="session-info">
+        <span class="session-id-badge">${escHtml(s.id)}</span>
+        <div class="session-title">${escHtml(s.session_name)}</div>
+        ${s.event_name ? `<div class="session-sub">${escHtml(s.event_name)}</div>` : ''}
+        <div class="url-section">
+          <p>ディスプレイURL</p>
+          <div class="url-line">
+            <span class="url-text">${BASE}display.html?id=${encodeURIComponent(s.id)}</span>
+            <button class="copy-btn" onclick="copyText('${BASE}display.html?id=${encodeURIComponent(s.id)}')">コピー</button>
+            <button class="copy-btn" onclick="window.open('${BASE}display.html?id=${encodeURIComponent(s.id)}','_blank')">開く</button>
+          </div>
+          <p>投稿URL（QR用）</p>
+          <div class="url-line">
+            <span class="url-text">${BASE}post.html?id=${encodeURIComponent(s.id)}</span>
+            <button class="copy-btn" onclick="copyText('${BASE}post.html?id=${encodeURIComponent(s.id)}')">コピー</button>
+          </div>
+        </div>
+      </div>
+      <div class="session-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openEditForm('${escHtml(s.id)}')">編集</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-function openDisplay() {
-  const url = buildUrl();
-  window.open(url, '_blank');
+// ---- フォーム ----
+function openNewForm() {
+  editingId = null;
+  document.getElementById('form-title').textContent = '新規セッション作成';
+  document.getElementById('f-id').value = '';
+  document.getElementById('f-id').disabled = false;
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-event').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-bg').value = '#000000';
+  document.getElementById('f-bg-picker').value = '#000000';
+  document.getElementById('f-fg').value = '#ffffff';
+  document.getElementById('f-fg-picker').value = '#ffffff';
+  document.getElementById('f-speed').value = 1;
+  document.getElementById('f-speed-val').textContent = '1x';
+  document.getElementById('edit-form').classList.add('open');
+  document.getElementById('edit-form').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ---- コメント読み込み ----
+function openEditForm(id) {
+  const s = sessions.find(x => x.id === id);
+  if (!s) return;
+  editingId = id;
+  document.getElementById('form-title').textContent = 'セッションを編集';
+  document.getElementById('f-id').value = s.id;
+  document.getElementById('f-id').disabled = true;
+  document.getElementById('f-name').value = s.session_name || '';
+  document.getElementById('f-event').value = s.event_name || '';
+  document.getElementById('f-desc').value = s.description || '';
+  document.getElementById('f-bg').value = s.bg_color || '#000000';
+  document.getElementById('f-bg-picker').value = s.bg_color || '#000000';
+  document.getElementById('f-fg').value = s.fg_color || '#ffffff';
+  document.getElementById('f-fg-picker').value = s.fg_color || '#ffffff';
+  document.getElementById('f-speed').value = s.speed || 1;
+  document.getElementById('f-speed-val').textContent = (s.speed || 1) + 'x';
+  document.getElementById('edit-form').classList.add('open');
+  document.getElementById('edit-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeForm() { document.getElementById('edit-form').classList.remove('open'); }
+
+async function saveSession() {
+  const id    = document.getElementById('f-id').value.trim().replace(/[^a-zA-Z0-9\-_]/g,'');
+  const name  = document.getElementById('f-name').value.trim() || '基調講演';
+  const event = document.getElementById('f-event').value.trim();
+  const desc  = document.getElementById('f-desc').value.trim();
+  const bg    = document.getElementById('f-bg').value;
+  const fg    = document.getElementById('f-fg').value;
+  const speed = parseFloat(document.getElementById('f-speed').value);
+
+  if (!id) { toast('セッションIDを入力してください'); return; }
+
+  const payload = { session_name: name, event_name: event, description: desc, bg_color: bg, fg_color: fg, speed };
+
+  let error;
+  if (editingId) {
+    ({ error } = await client.from('sessions').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await client.from('sessions').insert({ id, ...payload }));
+  }
+
+  if (error) { toast('保存エラー: ' + error.message); return; }
+  toast('保存しました！');
+  closeForm();
+  loadSessions();
+}
+
+function syncPickerFromText(base) {
+  const v = document.getElementById(base).value;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(base+'-picker').value = v;
+}
+
+// ---- コメント管理 ----
+function populateSessionSelect() {
+  const sel = document.getElementById('comment-session-select');
+  sel.innerHTML = '<option value="">選択してください</option>' +
+    sessions.map(s => `<option value="${escHtml(s.id)}">${escHtml(s.session_name)}（${escHtml(s.id)}）</option>`).join('');
+}
+
 async function loadComments() {
-  const { data, error } = await client.from('comments').select('*').order('created_at', { ascending: false });
-  if (error) { document.getElementById('comment-list').innerHTML = '<p class="empty">読み込みエラー</p>'; return; }
+  const sid = document.getElementById('comment-session-select').value;
+  if (!sid) return;
+  const { data } = await client.from('comments').select('*').eq('session_id', sid).order('created_at', { ascending: false });
   allComments = data || [];
   renderComments();
 }
@@ -352,72 +439,34 @@ function renderComments() {
   const list = document.getElementById('comment-list');
   const filtered = currentFilter === 'question' ? allComments.filter(c => c.is_question) : allComments;
   if (!filtered.length) { list.innerHTML = '<p class="empty">コメントはまだありません</p>'; return; }
-  list.innerHTML = filtered.map(c => {
-    const dt = new Date(c.created_at).toLocaleString('ja-JP');
-    return `<div class="comment-item ${c.is_question ? 'is-q' : ''}">
-      <div class="comment-body">
-        <div class="comment-text">${escHtml(c.text)}</div>
-        <div class="comment-meta">${dt}${c.is_question ? ' &nbsp;<span class="q-badge">❓ 質問</span>' : ''}</div>
-      </div>
-    </div>`;
-  }).join('');
+  list.innerHTML = filtered.map(c => `
+    <div class="comment-item ${c.is_question ? 'is-q' : ''}">
+      <div class="comment-text">${escHtml(c.text)}</div>
+      <div class="comment-meta">${new Date(c.created_at).toLocaleString('ja-JP')}${c.is_question ? '<span class="q-badge">❓ 質問</span>' : ''}</div>
+    </div>
+  `).join('');
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ---- CSVエクスポート ----
 function exportCSV(mode) {
   const data = mode === 'question' ? allComments.filter(c => c.is_question) : allComments;
   if (!data.length) { toast('データがありません'); return; }
   const rows = [['投稿時刻','コメント','質問フラグ']];
-  data.forEach(c => {
-    rows.push([
-      new Date(c.created_at).toLocaleString('ja-JP'),
-      '"' + c.text.replace(/"/g, '""') + '"',
-      c.is_question ? '質問' : ''
-    ]);
-  });
+  data.forEach(c => rows.push([new Date(c.created_at).toLocaleString('ja-JP'), '"'+c.text.replace(/"/g,'""')+'"', c.is_question?'質問':'']));
   const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'danmaku_' + (mode === 'question' ? 'questions_' : '') + new Date().toISOString().slice(0,10) + '.csv';
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'danmaku_'+(mode==='question'?'questions_':'')+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
   toast('CSVをダウンロードしました');
 }
 
+function copyText(text) { navigator.clipboard.writeText(text).then(() => toast('コピーしました！')); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2200);
 }
-
-// 設定変更時にURLプレビュー更新
-['s-session','s-event','s-desc','s-speed','s-bg','s-fg','s-post-url'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', () => {
-    const session = document.getElementById('s-session').value || '基調講演';
-    const p = new URLSearchParams();
-    p.set('session', session);
-    const event = document.getElementById('s-event').value;
-    if (event) p.set('event', event);
-    const desc = document.getElementById('s-desc').value;
-    if (desc) p.set('desc', desc);
-    const speed = document.getElementById('s-speed').value;
-    if (speed !== '1') p.set('speed', speed);
-    const bg = document.getElementById('s-bg').value;
-    if (bg !== '#000000') p.set('bg', bg);
-    const fg = document.getElementById('s-fg').value;
-    if (fg !== '#ffffff') p.set('fg', fg);
-    const postUrl = document.getElementById('s-post-url').value;
-    if (postUrl) p.set('post', postUrl);
-    const base = location.href.replace('admin.html', 'display.html');
-    document.getElementById('url-preview').innerHTML = '<span>' + base + '?' + p.toString() + '</span>';
-  });
-});
 </script>
 </body>
 </html>
