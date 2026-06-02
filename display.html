@@ -142,7 +142,7 @@ function startRealtime(sessionId, fgColor, speed) {
     const el = document.createElement('div');
     el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
     el.textContent = (isQuestion ? '❓ ' : '') + text;
-    el.style.color = fgColor;
+    el.style.color = isQuestion ? '#fb923c' : fgColor;
     el.style.fontSize = '2.2rem';
     scrollElement(el, pickTrack(), 1);
     count++;
