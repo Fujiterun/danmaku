@@ -105,11 +105,12 @@ function startRealtime(sessionId, fgColor, speed) {
     const topMargin = 160;
     const bottomMargin = 220;
     const usableHeight = screen.offsetHeight - topMargin - bottomMargin;
-    // 偶数トラック（0,2,4...）は前半10本、奇数トラック（1,3,5...）は半トラック分下にオフセット
+    // 20本を均等配置。偶数インデックス(0,2,4...)が1,2,3...番、奇数インデックス(1,3,5...)がその中間
     const halfTracks = TRACKS / 2;
+    const trackSpacing = usableHeight / halfTracks;
     const trackIndex = Math.floor(i / 2);
-    const offset = (i % 2 === 1) ? Math.floor(usableHeight / halfTracks / 2) : 0;
-    return topMargin + Math.floor(usableHeight / halfTracks * trackIndex) + offset;
+    const offset = (i % 2 === 1) ? Math.round(trackSpacing / 2) : 0;
+    return topMargin + Math.round(trackSpacing * trackIndex) + offset;
   }
 
   function pickTrack() {
