@@ -501,8 +501,8 @@ function renderComments() {
 function exportCSV(mode) {
   const data = mode === 'question' ? allComments.filter(c => c.is_question) : allComments;
   if (!data.length) { toast('データがありません'); return; }
-  const rows = [['投稿時刻','コメント','質問フラグ']];
-  data.forEach(c => rows.push([new Date(c.created_at).toLocaleString('ja-JP'), '"'+c.text.replace(/"/g,'""')+'"', c.is_question?'質問':'']));
+  const rows = [['投稿時刻','コメント','質問フラグ','同意数']];
+  data.forEach(c => rows.push([new Date(c.created_at).toLocaleString('ja-JP'), '"'+c.text.replace(/"/g,'""')+'"', c.is_question?'質問':'', c.agree_count||0]));
   const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
