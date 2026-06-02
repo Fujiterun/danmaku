@@ -149,14 +149,24 @@ function startRealtime(sessionId, fgColor, speed) {
     stats.textContent = count + ' コメント';
   }
 
-  function launchReaction(displayText) {
+  async function launchReaction(displayText) {
     const isAgree = displayText.startsWith('同意→');
+    // 同意の場合、元コメントが非表示でないか確認
+    if (isAgree) {
+      const originalText = displayText.slice(3); // 「同意→」を除いた本文
+      const { data } = await client.from('comments')
+        .select('is_hidden')
+        .eq('text', originalText)
+        .eq('session_id', sessionId)
+        .eq('is_hidden', true)
+        .limit(1);
+      if (data && data.length > 0) return; // 非表示コメントへの同意はスキップ
+    }
     const el = document.createElement('div');
     el.className = 'danmaku' + (isAgree ? ' is-agree' : '');
     el.textContent = displayText;
     el.style.fontSize = '2.2rem';
     if (!isAgree) el.style.color = fgColor;
-    // 同意は1.5倍速
     scrollElement(el, pickTrack(), isAgree ? 1.5 : 1);
   }
 
