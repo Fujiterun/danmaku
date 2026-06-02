@@ -15,6 +15,7 @@
   .header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
   .event-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; }
   .page-title  { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
+
   #disabled-screen {
     display: none; text-align: center;
     background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
@@ -23,7 +24,9 @@
   #disabled-screen .icon { font-size: 2.5rem; margin-bottom: 12px; }
   #disabled-screen p { color: #ef4444; font-size: 1rem; font-weight: 700; }
   #disabled-screen small { color: rgba(255,255,255,0.3); font-size: 0.82rem; margin-top: 8px; display: block; }
+
   #post-content { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; gap: 20px; }
+
   .card {
     width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
@@ -42,6 +45,7 @@
   .counter-num { font-size: 0.78rem; color: rgba(255,255,255,0.4); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
   .counter-num.warn { color: #f59e0b; }
   .counter-num.over { color: #ef4444; }
+
   .question-toggle {
     display: flex; align-items: center; gap: 10px; padding: 10px 14px;
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
@@ -57,6 +61,7 @@
     transition: background 0.15s, border-color 0.15s;
   }
   .question-toggle.active .q-check { background: #fbbf24; border-color: #fbbf24; color: #000; }
+
   .send-btn {
     width: 100%; padding: 14px; background: #4f46e5; color: #fff;
     font-family: 'Noto Sans JP', sans-serif; font-size: 1rem; font-weight: 700;
@@ -65,6 +70,7 @@
   }
   .send-btn:active { transform: scale(0.97); background: #3730a3; }
   .send-btn:disabled { background: #333; color: rgba(255,255,255,0.3); cursor: default; }
+
   .reactions-title { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; text-align: center; }
   .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
   .react-btn {
@@ -75,6 +81,61 @@
   }
   .react-label { font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 700; text-align: center; }
   .react-btn:active { transform: scale(0.94); background: rgba(255,255,255,0.12); }
+
+  /* コメント履歴 */
+  .history-section { width: 100%; }
+  .history-toggle {
+    width: 100%; padding: 14px 18px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; color: rgba(255,255,255,0.6); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.15s;
+  }
+  .history-toggle:active { background: rgba(255,255,255,0.08); }
+  .history-toggle .arrow { font-size: 0.8rem; transition: transform 0.2s; }
+  .history-toggle.open .arrow { transform: rotate(180deg); }
+
+  .history-body { display: none; margin-top: 8px; }
+  .history-body.open { display: block; }
+
+  .history-toolbar {
+    display: flex; justify-content: flex-end; margin-bottom: 10px;
+  }
+  .reload-btn {
+    padding: 6px 14px; font-size: 0.8rem;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: rgba(255,255,255,0.5); cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; transition: background 0.15s;
+  }
+  .reload-btn:active { background: rgba(255,255,255,0.12); }
+
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .history-item.is-q { border-color: rgba(251,191,36,0.25); background: rgba(251,191,36,0.04); }
+  .history-body-text { flex: 1; }
+  .history-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 4px; }
+  .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.25); display: flex; align-items: center; gap: 8px; }
+  .q-tag { font-size: 0.68rem; padding: 1px 6px; background: rgba(251,191,36,0.15); color: #fbbf24; border-radius: 4px; }
+
+  .agree-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 10px; min-width: 52px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s, transform 0.1s; flex-shrink: 0;
+  }
+  .agree-btn:active { transform: scale(0.93); }
+  .agree-btn.agreed { background: rgba(79,70,229,0.2); border-color: rgba(79,70,229,0.5); }
+  .agree-icon { font-size: 1.1rem; }
+  .agree-count { font-size: 0.72rem; color: rgba(255,255,255,0.45); font-weight: 700; }
+  .agree-btn.agreed .agree-count { color: #818cf8; }
+
+  .history-empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.85rem; padding: 24px 0; }
+
   .toast {
     position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); color: #fff;
@@ -85,15 +146,18 @@
 </style>
 </head>
 <body>
+
 <div class="header">
   <p class="event-title" id="event-title">読み込み中...</p>
   <p class="page-title">コメントを送ろう</p>
 </div>
+
 <div id="disabled-screen">
   <div class="icon">⛔</div>
   <p>無効なセッションです</p>
   <small>このセッションは現在投稿を受け付けていません</small>
 </div>
+
 <div id="post-content">
   <div class="card">
     <label>コメント（55文字以内）</label>
@@ -109,9 +173,27 @@
     </div>
     <button class="send-btn" id="send-btn">画面に流す 🚀</button>
   </div>
+
   <p class="reactions-title">リアクションを送る</p>
   <div class="reactions" id="reactions-grid"></div>
+
+  <!-- コメント履歴 -->
+  <div class="history-section">
+    <button class="history-toggle" id="history-toggle" onclick="toggleHistory()">
+      <span>コメント履歴を見る</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="history-body" id="history-body">
+      <div class="history-toolbar">
+        <button class="reload-btn" onclick="loadHistory()">↺ リロード</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <p class="history-empty">読み込み中...</p>
+      </div>
+    </div>
+  </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -130,6 +212,7 @@ const DEFAULT_REACTIONS = [
   { label: 'なるほど', display: '💡' }
 ];
 
+// セッション初期化
 async function init() {
   const { data } = await client.from('sessions').select('session_name, is_active, reactions').eq('id', sessionId).single();
   if (!data || data.is_active === false) {
@@ -139,11 +222,12 @@ async function init() {
   }
   document.getElementById('event-title').textContent = data.session_name;
   document.getElementById('post-content').style.display = 'flex';
+
   const reactions = data.reactions || DEFAULT_REACTIONS;
   const grid = document.getElementById('reactions-grid');
   grid.innerHTML = reactions.map(r => `
-    <button class="react-btn" data-display="${r.display.replace(/"/g,'&quot;')}">
-      <span class="react-label">${r.label}</span>
+    <button class="react-btn" data-display="${escAttr(r.display)}">
+      <span class="react-label">${escHtml(r.label)}</span>
     </button>
   `).join('');
   grid.querySelectorAll('.react-btn').forEach(btn => {
@@ -156,6 +240,7 @@ async function init() {
 }
 init();
 
+// コメント入力
 const MAX = 55;
 const textarea = document.getElementById('text');
 const progress = document.getElementById('progress');
@@ -180,12 +265,6 @@ qToggle.addEventListener('click', () => {
   qCheck.textContent = isQuestion ? '✓' : '';
 });
 
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-}
-
 document.getElementById('send-btn').addEventListener('click', async () => {
   const text = textarea.value.trim();
   if (!text) return;
@@ -209,7 +288,86 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   qToggle.classList.remove('active');
   qCheck.textContent = '';
   toast('送信しました！');
+  // 履歴が開いていたらリロード
+  if (document.getElementById('history-body').classList.contains('open')) loadHistory();
 });
+
+// コメント履歴
+let historyLoaded = false;
+
+function toggleHistory() {
+  const toggle = document.getElementById('history-toggle');
+  const body   = document.getElementById('history-body');
+  const isOpen = body.classList.contains('open');
+  toggle.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+  if (!isOpen && !historyLoaded) loadHistory();
+}
+
+async function loadHistory() {
+  historyLoaded = true;
+  const list = document.getElementById('history-list');
+  list.innerHTML = '<p class="history-empty">読み込み中...</p>';
+  const { data, error } = await client
+    .from('comments').select('*')
+    .eq('session_id', sessionId)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error || !data || !data.length) {
+    list.innerHTML = '<p class="history-empty">まだコメントはありません</p>';
+    return;
+  }
+  list.innerHTML = data.map(c => {
+    const dt = new Date(c.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    return `
+      <div class="history-item ${c.is_question ? 'is-q' : ''}">
+        <div class="history-body-text">
+          <div class="history-text">${escHtml(c.text)}</div>
+          <div class="history-meta">
+            ${dt}
+            ${c.is_question ? '<span class="q-tag">❓ 質問</span>' : ''}
+          </div>
+        </div>
+        <button class="agree-btn" id="agree-${c.id}" onclick="sendAgree('${c.id}', ${JSON.stringify(c.text).replace(/</g,'\\u003c')})">
+          <span class="agree-icon">👍</span>
+          <span class="agree-count" id="agree-count-${c.id}">${c.agree_count || 0}</span>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function sendAgree(commentId, commentText) {
+  const btn = document.getElementById('agree-' + commentId);
+  if (btn.classList.contains('agreed')) return;
+  btn.classList.add('agreed');
+
+  // agree_countをインクリメント
+  const { data: cur } = await client.from('comments').select('agree_count').eq('id', commentId).single();
+  const newCount = (cur?.agree_count || 0) + 1;
+  await client.from('comments').update({ agree_count: newCount }).eq('id', commentId);
+  await client.from('comment_agrees').insert({ comment_id: commentId });
+
+  // カウント表示更新
+  document.getElementById('agree-count-' + commentId).textContent = newCount;
+
+  // 弾幕として「同意→コメント内容」をreactionsに流す（speed_multiplierで1.5倍速を指示）
+  await client.from('reactions').insert({
+    type: '同意→' + commentText,
+    session_id: sessionId
+  });
+
+  toast('同意しました！');
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
 </script>
 </body>
 </html>
