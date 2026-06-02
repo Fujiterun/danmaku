@@ -35,7 +35,7 @@
 <div id="description-bar"></div>
 <div id="qr-box">
   <div id="qr-canvas"></div>
-  <div id="qr-label">コメントはこちら</div>
+  <div id="qr-label">投稿はこちら</div>
 </div>
 <div id="loading">読み込み中...</div>
 
@@ -50,7 +50,7 @@ const params    = new URLSearchParams(window.location.search);
 const sessionId = params.get('id') || 'default';
 
 async function init() {
-  const { data, error } = await client.from('sessions').select('*').eq('id', sessionId).single();
+  const { data } = await client.from('sessions').select('*').eq('id', sessionId).single();
   document.getElementById('loading').style.display = 'none';
 
   let cfg = { session_name: sessionId, event_name: '', description: '', bg_color: '#000000', fg_color: '#ffffff', speed: 1 };
@@ -80,7 +80,7 @@ async function init() {
 
   const postUrl = location.href.replace('display.html', 'post.html').replace(/\?.*/, '') + '?id=' + encodeURIComponent(sessionId);
   new QRCode(document.getElementById('qr-canvas'), {
-    text: postUrl, width: 120, height: 120,
+    text: postUrl, width: 180, height: 180,
     colorDark: fgColor, colorLight: '#00000000'
   });
 
