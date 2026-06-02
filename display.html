@@ -101,7 +101,14 @@ function startRealtime(sessionId, fgColor, speed) {
   const TRACKS = 10;
   const trackLastEnd = new Array(TRACKS).fill(0);
 
-  function getTrackY(i) { return Math.floor((screen.offsetHeight - 60) / TRACKS * i) + 20; }
+  function getTrackY(i) {
+    // 上部：セッション名エリアを避ける（約160px）
+    // 下部：QRコード・descriptionバーを避ける（約220px）
+    const topMargin = 160;
+    const bottomMargin = 220;
+    const usableHeight = screen.offsetHeight - topMargin - bottomMargin;
+    return topMargin + Math.floor(usableHeight / TRACKS * i);
+  }
 
   function pickTrack() {
     let track = 0, earliest = Infinity;
