@@ -8,16 +8,13 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #0f0f1a; color: #fff;
-    font-family: 'Noto Sans JP', sans-serif;
+    background: #0f0f1a; color: #fff; font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 24px 20px; gap: 20px;
   }
   .header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
   .event-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; }
   .page-title  { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
-
-  /* 無効画面 */
   #disabled-screen {
     display: none; text-align: center;
     background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
@@ -26,12 +23,9 @@
   #disabled-screen .icon { font-size: 2.5rem; margin-bottom: 12px; }
   #disabled-screen p { color: #ef4444; font-size: 1rem; font-weight: 700; }
   #disabled-screen small { color: rgba(255,255,255,0.3); font-size: 0.82rem; margin-top: 8px; display: block; }
-
-  #post-content { display: none; width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-
+  #post-content { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; gap: 20px; }
   .card {
-    width: 100%;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
   }
   .card label { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; }
@@ -58,9 +52,9 @@
   .question-toggle .q-text { font-size: 0.9rem; color: rgba(255,255,255,0.6); flex: 1; }
   .question-toggle.active .q-text { color: #fbbf24; font-weight: 700; }
   .question-toggle .q-check {
-    width: 20px; height: 20px; border: 1.5px solid rgba(255,255,255,0.25);
-    border-radius: 6px; display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; transition: background 0.15s, border-color 0.15s;
+    width: 20px; height: 20px; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+    transition: background 0.15s, border-color 0.15s;
   }
   .question-toggle.active .q-check { background: #fbbf24; border-color: #fbbf24; color: #000; }
   .send-btn {
@@ -74,37 +68,32 @@
   .reactions-title { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; text-align: center; }
   .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
   .react-btn {
-    padding: 18px 0 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+    padding: 18px 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px; color: #fff; font-family: 'Noto Sans JP', sans-serif; cursor: pointer;
     display: flex; flex-direction: column; align-items: center; gap: 6px;
     transition: background 0.15s, transform 0.1s;
   }
-  .react-emoji { font-size: 1.8rem; line-height: 1; }
-  .react-label { font-size: 0.8rem; color: rgba(255,255,255,0.55); font-weight: 700; }
+  .react-label { font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 700; text-align: center; }
   .react-btn:active { transform: scale(0.94); background: rgba(255,255,255,0.12); }
   .toast {
-    position: fixed; bottom: 32px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
-    color: #fff; padding: 10px 22px; border-radius: 50px; font-size: 0.9rem;
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); color: #fff;
+    padding: 10px 22px; border-radius: 50px; font-size: 0.9rem;
     opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
-
 <div class="header">
   <p class="event-title" id="event-title">読み込み中...</p>
   <p class="page-title">コメントを送ろう</p>
 </div>
-
 <div id="disabled-screen">
   <div class="icon">⛔</div>
   <p>無効なセッションです</p>
   <small>このセッションは現在投稿を受け付けていません</small>
 </div>
-
 <div id="post-content">
   <div class="card">
     <label>コメント（55文字以内）</label>
@@ -121,14 +110,8 @@
     <button class="send-btn" id="send-btn">画面に流す 🚀</button>
   </div>
   <p class="reactions-title">リアクションを送る</p>
-  <div class="reactions">
-    <button class="react-btn" data-type="同意！"><span class="react-emoji">👍</span><span class="react-label">同意！</span></button>
-    <button class="react-btn" data-type="笑"><span class="react-emoji">😂</span><span class="react-label">笑</span></button>
-    <button class="react-btn" data-type="なるほど！"><span class="react-emoji">💡</span><span class="react-label">なるほど！</span></button>
-    <button class="react-btn" data-type="？"><span class="react-emoji">🤔</span><span class="react-label">？</span></button>
-  </div>
+  <div class="reactions" id="reactions-grid"></div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -140,16 +123,36 @@ const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const params    = new URLSearchParams(window.location.search);
 const sessionId = params.get('id') || 'default';
 
+const DEFAULT_REACTIONS = [
+  { label: '拍手',    display: '88888888888' },
+  { label: '同意',    display: '👍️' },
+  { label: '面白い',  display: 'wwwwwwwwwwww' },
+  { label: 'なるほど', display: '💡' }
+];
+
 async function init() {
-  const { data } = await client.from('sessions').select('session_name, is_active').eq('id', sessionId).single();
+  const { data } = await client.from('sessions').select('session_name, is_active, reactions').eq('id', sessionId).single();
   if (!data || data.is_active === false) {
     document.getElementById('event-title').textContent = data ? data.session_name : sessionId;
     document.getElementById('disabled-screen').style.display = 'block';
-    document.getElementById('post-content').style.display = 'none';
     return;
   }
   document.getElementById('event-title').textContent = data.session_name;
   document.getElementById('post-content').style.display = 'flex';
+  const reactions = data.reactions || DEFAULT_REACTIONS;
+  const grid = document.getElementById('reactions-grid');
+  grid.innerHTML = reactions.map(r => `
+    <button class="react-btn" data-display="${r.display.replace(/"/g,'&quot;')}">
+      <span class="react-label">${r.label}</span>
+    </button>
+  `).join('');
+  grid.querySelectorAll('.react-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const display = btn.dataset.display;
+      await client.from('reactions').insert({ type: display, session_id: sessionId });
+      toast(btn.querySelector('.react-label').textContent + ' を送りました！');
+    });
+  });
 }
 init();
 
@@ -188,7 +191,6 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   if (!text) return;
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
-  // 送信前に再度is_activeを確認
   const { data: check } = await client.from('sessions').select('is_active').eq('id', sessionId).single();
   if (!check || check.is_active === false) {
     document.getElementById('disabled-screen').style.display = 'block';
@@ -207,14 +209,6 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   qToggle.classList.remove('active');
   qCheck.textContent = '';
   toast('送信しました！');
-});
-
-document.querySelectorAll('.react-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const type = btn.dataset.type;
-    await client.from('reactions').insert({ type, session_id: sessionId });
-    toast(type + ' を送りました！');
-  });
 });
 </script>
 </body>

@@ -31,18 +31,14 @@
   .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
   .top-bar h1 { font-size: 1.2rem; letter-spacing: 0.06em; }
   .logout-btn {
-    padding: 6px 14px; font-size: 0.8rem;
-    background: transparent; color: rgba(255,255,255,0.4);
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
+    padding: 6px 14px; font-size: 0.8rem; background: transparent; color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
   }
-
   .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .tab {
-    padding: 10px 18px; font-size: 0.9rem; cursor: pointer;
-    color: rgba(255,255,255,0.4); border-bottom: 2px solid transparent;
-    font-family: 'Noto Sans JP', sans-serif; background: none;
-    border-top: none; border-left: none; border-right: none; transition: color 0.15s;
+    padding: 10px 18px; font-size: 0.9rem; cursor: pointer; color: rgba(255,255,255,0.4);
+    border-bottom: 2px solid transparent; font-family: 'Noto Sans JP', sans-serif;
+    background: none; border-top: none; border-left: none; border-right: none; transition: color 0.15s;
   }
   .tab.active { color: #fff; border-bottom-color: #4f46e5; }
   .panel { display: none; }
@@ -51,53 +47,36 @@
   .session-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
   .session-card {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 16px 18px;
-    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+    border-radius: 12px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
   }
   .session-card.inactive { opacity: 0.5; border-color: rgba(255,255,255,0.06); }
   .session-info { flex: 1; min-width: 0; }
   .session-id-badge {
-    font-size: 0.72rem; background: rgba(255,255,255,0.1);
-    padding: 2px 8px; border-radius: 4px; color: rgba(255,255,255,0.5);
-    font-family: monospace; margin-bottom: 4px; display: inline-block;
+    font-size: 0.72rem; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;
+    color: rgba(255,255,255,0.5); font-family: monospace; margin-bottom: 4px; display: inline-block;
   }
   .session-title { font-size: 1rem; font-weight: 700; }
   .session-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
-
-  /* ON/OFFトグル */
   .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .toggle-label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
-  .toggle-switch {
-    position: relative; width: 44px; height: 24px; cursor: pointer;
-  }
+  .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
   .toggle-switch input { opacity: 0; width: 0; height: 0; }
-  .toggle-track {
-    position: absolute; inset: 0; border-radius: 12px;
-    background: rgba(255,255,255,0.15); transition: background 0.2s;
-  }
+  .toggle-track { position: absolute; inset: 0; border-radius: 12px; background: rgba(255,255,255,0.15); transition: background 0.2s; }
   .toggle-switch input:checked + .toggle-track { background: #22c55e; }
-  .toggle-thumb {
-    position: absolute; top: 3px; left: 3px;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: #fff; transition: transform 0.2s;
-  }
+  .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
   .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(20px); }
-  .status-badge {
-    font-size: 0.72rem; padding: 2px 10px; border-radius: 20px; font-weight: 700;
-  }
+  .status-badge { font-size: 0.72rem; padding: 2px 10px; border-radius: 20px; font-weight: 700; }
   .status-badge.on  { background: rgba(34,197,94,0.15);  color: #22c55e; }
   .status-badge.off { background: rgba(239,68,68,0.15);  color: #ef4444; }
-
   .session-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
   .url-section { margin-top: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px 14px; }
   .url-section p { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-bottom: 5px; letter-spacing: 0.05em; }
   .url-line { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .url-text { font-size: 0.8rem; color: #7df9ff; font-family: monospace; flex: 1; word-break: break-all; }
   .copy-btn {
-    padding: 4px 10px; font-size: 0.75rem;
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 6px; color: rgba(255,255,255,0.6); cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
+    padding: 4px 10px; font-size: 0.75rem; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: rgba(255,255,255,0.6);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
   }
 
   .edit-form {
@@ -109,10 +88,9 @@
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
   .field input[type=text], .field textarea {
-    width: 100%; padding: 10px 14px;
-    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 8px; color: #fff; font-size: 0.95rem;
-    font-family: 'Noto Sans JP', sans-serif; outline: none;
+    width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff;
+    font-size: 0.95rem; font-family: 'Noto Sans JP', sans-serif; outline: none;
   }
   .field input:focus, .field textarea:focus { border-color: rgba(255,255,255,0.35); }
   .field textarea { resize: vertical; min-height: 60px; }
@@ -124,10 +102,31 @@
   .color-row { display: flex; align-items: center; gap: 10px; }
   .color-row input[type=color] { width: 40px; height: 34px; border: none; background: none; cursor: pointer; border-radius: 6px; }
 
+  /* リアクション設定 */
+  .reaction-editor { display: flex; flex-direction: column; gap: 8px; }
+  .reaction-row {
+    display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
+  }
+  .reaction-row input {
+    padding: 8px 12px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px; color: #fff; font-size: 0.9rem; font-family: 'Noto Sans JP', sans-serif; outline: none; width: 100%;
+  }
+  .reaction-row input:focus { border-color: rgba(255,255,255,0.35); }
+  .del-btn {
+    padding: 8px 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px; color: #ef4444; cursor: pointer; font-size: 0.9rem; white-space: nowrap;
+  }
+  .add-reaction-btn {
+    padding: 8px 14px; font-size: 0.82rem; background: rgba(255,255,255,0.06);
+    border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; color: rgba(255,255,255,0.5);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; text-align: left;
+  }
+  .reaction-header { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+  .reaction-header span { font-size: 0.75rem; color: rgba(255,255,255,0.3); padding: 0 2px; }
+
   .btn {
-    padding: 8px 16px; font-size: 0.85rem; font-weight: 700;
-    border-radius: 8px; border: none; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s; white-space: nowrap;
+    padding: 8px 16px; font-size: 0.85rem; font-weight: 700; border-radius: 8px; border: none;
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s; white-space: nowrap;
   }
   .btn:active { transform: scale(0.97); }
   .btn-primary   { background: #4f46e5; color: #fff; }
@@ -137,35 +136,27 @@
   .session-select-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .session-select-row label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
   .session-select-row select {
-    padding: 8px 12px; background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-    color: #fff; font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; outline: none;
+    padding: 8px 12px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px; color: #fff; font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; outline: none;
   }
   .filter-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .filter-btn {
-    padding: 6px 14px; font-size: 0.82rem;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px; color: rgba(255,255,255,0.55); cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s;
+    padding: 6px 14px; font-size: 0.82rem; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; color: rgba(255,255,255,0.55);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s;
   }
   .filter-btn.active { background: rgba(79,70,229,0.25); border-color: #4f46e5; color: #fff; }
   .comment-list { display: flex; flex-direction: column; gap: 8px; }
-  .comment-item {
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; padding: 12px 14px;
-  }
+  .comment-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 14px; }
   .comment-item.is-q { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); }
   .comment-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 4px; white-space: pre-wrap; }
   .comment-meta { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
   .q-badge { font-size: 0.7rem; padding: 2px 8px; background: rgba(251,191,36,0.2); color: #fbbf24; border-radius: 4px; margin-left: 6px; }
   .empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.9rem; padding: 40px 0; }
-
   .toast {
-    position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
-    color: #fff; padding: 10px 22px; border-radius: 50px;
-    font-size: 0.9rem; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); color: #fff; padding: 10px 22px;
+    border-radius: 50px; font-size: 0.9rem; opacity: 0; transition: opacity 0.3s, transform 0.3s;
     pointer-events: none; white-space: nowrap; z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -239,6 +230,16 @@
           <span class="speed-val" id="f-speed-val">1x</span>
         </div>
       </div>
+      <div class="field">
+        <label>リアクションボタン設定</label>
+        <div class="reaction-header">
+          <span>ボタン名（参加者に表示）</span>
+          <span>弾幕表示テキスト</span>
+          <span></span>
+        </div>
+        <div class="reaction-editor" id="reaction-editor"></div>
+        <button class="add-reaction-btn" onclick="addReactionRow()" style="margin-top:8px">＋ ボタンを追加</button>
+      </div>
       <div style="display:flex;gap:10px;margin-top:8px">
         <button class="btn btn-primary" onclick="saveSession()">保存</button>
         <button class="btn btn-secondary" onclick="closeForm()">キャンセル</button>
@@ -253,9 +254,7 @@
   <div class="panel" id="panel-comments">
     <div class="session-select-row">
       <label>セッション：</label>
-      <select id="comment-session-select" onchange="loadComments()">
-        <option value="">選択してください</option>
-      </select>
+      <select id="comment-session-select" onchange="loadComments()"><option value="">選択してください</option></select>
       <button class="btn btn-secondary btn-sm" onclick="loadComments()">更新</button>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
@@ -266,9 +265,7 @@
       <button class="filter-btn active" onclick="filterComments('all',this)">すべて</button>
       <button class="filter-btn" onclick="filterComments('question',this)">❓ 質問のみ</button>
     </div>
-    <div class="comment-list" id="comment-list">
-      <p class="empty">セッションを選択してください</p>
-    </div>
+    <div class="comment-list" id="comment-list"><p class="empty">セッションを選択してください</p></div>
   </div>
 </div>
 
@@ -281,10 +278,14 @@ const SUPABASE_KEY = 'sb_publishable_ASIIOGkT9W55Ts8vo-HFkQ_dnqxpo3S';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const BASE = location.href.replace('admin.html','');
-let sessions = [];
-let allComments = [];
-let currentFilter = 'all';
-let editingId = null;
+let sessions = [], allComments = [], currentFilter = 'all', editingId = null;
+
+const DEFAULT_REACTIONS = [
+  { label: '拍手',    display: '88888888888' },
+  { label: '同意',    display: '👍️' },
+  { label: '面白い',  display: 'wwwwwwwwwwww' },
+  { label: 'なるほど', display: '💡' }
+];
 
 async function doLogin() {
   const pw = document.getElementById('pw-input').value;
@@ -295,9 +296,7 @@ async function doLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-screen').style.display = 'block';
     loadSessions();
-  } else {
-    document.getElementById('login-err').textContent = 'パスワードが違います';
-  }
+  } else { document.getElementById('login-err').textContent = 'パスワードが違います'; }
 }
 function doLogout() { sessionStorage.removeItem('admin_ok'); location.reload(); }
 document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
@@ -326,7 +325,7 @@ function renderSessions() {
   grid.innerHTML = sessions.map(s => {
     const isActive = s.is_active !== false;
     return `
-    <div class="session-card ${isActive ? '' : 'inactive'}" id="card-${escHtml(s.id)}">
+    <div class="session-card ${isActive ? '' : 'inactive'}">
       <div class="session-info">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
           <span class="session-id-badge">${escHtml(s.id)}</span>
@@ -372,6 +371,27 @@ async function toggleSession(id, isActive) {
   toast(isActive ? '✅ ONにしました' : '⛔ OFFにしました');
 }
 
+// リアクション行
+function addReactionRow(label='', display='') {
+  const editor = document.getElementById('reaction-editor');
+  const row = document.createElement('div');
+  row.className = 'reaction-row';
+  row.innerHTML = `
+    <input type="text" placeholder="拍手" value="${escHtml(label)}" />
+    <input type="text" placeholder="88888888888" value="${escHtml(display)}" />
+    <button class="del-btn" onclick="this.closest('.reaction-row').remove()">✕</button>
+  `;
+  editor.appendChild(row);
+}
+
+function getReactionsFromForm() {
+  const rows = document.querySelectorAll('#reaction-editor .reaction-row');
+  return Array.from(rows).map(r => {
+    const inputs = r.querySelectorAll('input');
+    return { label: inputs[0].value.trim(), display: inputs[1].value.trim() };
+  }).filter(r => r.label && r.display);
+}
+
 function openNewForm() {
   editingId = null;
   document.getElementById('form-title').textContent = '新規セッション作成';
@@ -386,6 +406,8 @@ function openNewForm() {
   document.getElementById('f-fg-picker').value = '#ffffff';
   document.getElementById('f-speed').value = 1;
   document.getElementById('f-speed-val').textContent = '1x';
+  document.getElementById('reaction-editor').innerHTML = '';
+  DEFAULT_REACTIONS.forEach(r => addReactionRow(r.label, r.display));
   document.getElementById('edit-form').classList.add('open');
   document.getElementById('edit-form').scrollIntoView({ behavior: 'smooth' });
 }
@@ -406,6 +428,9 @@ function openEditForm(id) {
   document.getElementById('f-fg-picker').value = s.fg_color || '#ffffff';
   document.getElementById('f-speed').value = s.speed || 1;
   document.getElementById('f-speed-val').textContent = (s.speed || 1) + 'x';
+  document.getElementById('reaction-editor').innerHTML = '';
+  const reactions = s.reactions || DEFAULT_REACTIONS;
+  reactions.forEach(r => addReactionRow(r.label, r.display));
   document.getElementById('edit-form').classList.add('open');
   document.getElementById('edit-form').scrollIntoView({ behavior: 'smooth' });
 }
@@ -420,8 +445,10 @@ async function saveSession() {
   const bg    = document.getElementById('f-bg').value;
   const fg    = document.getElementById('f-fg').value;
   const speed = parseFloat(document.getElementById('f-speed').value);
+  const reactions = getReactionsFromForm();
   if (!id) { toast('セッションIDを入力してください'); return; }
-  const payload = { session_name: name, event_name: event, description: desc, bg_color: bg, fg_color: fg, speed };
+  if (!reactions.length) { toast('リアクションボタンを1つ以上設定してください'); return; }
+  const payload = { session_name: name, event_name: event, description: desc, bg_color: bg, fg_color: fg, speed, reactions };
   let error;
   if (editingId) {
     ({ error } = await client.from('sessions').update(payload).eq('id', editingId));
@@ -468,8 +495,7 @@ function renderComments() {
     <div class="comment-item ${c.is_question ? 'is-q' : ''}">
       <div class="comment-text">${escHtml(c.text)}</div>
       <div class="comment-meta">${new Date(c.created_at).toLocaleString('ja-JP')}${c.is_question ? '<span class="q-badge">❓ 質問</span>' : ''}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function exportCSV(mode) {

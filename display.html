@@ -131,19 +131,14 @@ function startRealtime(sessionId, fgColor, speed) {
     stats.textContent = count + ' コメント';
   }
 
-  function launchReaction(type) {
-    const map = { '同意！':'👍', '笑':'😂', 'なるほど！':'💡', '？':'🤔' };
-    const emoji = map[type] || type;
-    for (let j = 0; j < 3; j++) {
-      setTimeout(() => {
-        const el = document.createElement('div');
-        el.className = 'danmaku';
-        el.textContent = emoji;
-        el.style.color = fgColor;
-        el.style.fontSize = '2.8rem';
-        scrollElement(el, pickTrack());
-      }, j * 300);
-    }
+  function launchReaction(displayText) {
+    // 1個だけ流す
+    const el = document.createElement('div');
+    el.className = 'danmaku';
+    el.textContent = displayText;
+    el.style.color = fgColor;
+    el.style.fontSize = '2.2rem';
+    scrollElement(el, pickTrack());
   }
 
   client.channel('comments-' + sessionId)
