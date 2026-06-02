@@ -328,13 +328,20 @@ async function loadHistory() {
             ${c.is_question ? '<span class="q-tag">❓ 質問</span>' : ''}
           </div>
         </div>
-        <button class="agree-btn" id="agree-${c.id}" onclick="sendAgree('${c.id}', ${JSON.stringify(c.text).replace(/</g,'\\u003c')})">
+        <button class="agree-btn" id="agree-${c.id}" data-id="${c.id}" data-text="${escAttr(c.text)}">
           <span class="agree-icon">👍</span>
           <span class="agree-count" id="agree-count-${c.id}">${c.agree_count || 0}</span>
         </button>
       </div>
     `;
   }).join('');
+
+  // データ属性からイベントリスナーを安全に設定
+  list.querySelectorAll('.agree-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sendAgree(btn.dataset.id, btn.dataset.text);
+    });
+  });
 }
 
 async function sendAgree(commentId, commentText) {
