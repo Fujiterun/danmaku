@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>コメント投稿</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f0f1a;
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+  .header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
+  .event-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; }
+  .page-title  { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
+  .card {
+    width: 100%; max-width: 400px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .card label { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; }
+  textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1.05rem;
+    padding: 12px 14px;
+    resize: none; height: 90px; outline: none; line-height: 1.6;
+  }
+  textarea:focus { border-color: rgba(255,255,255,0.4); }
+  textarea::placeholder { color: rgba(255,255,255,0.25); }
+  .counter-row { display: flex; align-items: center; gap: 10px; }
+  .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; border-radius: 4px; background: #4f46e5; transition: width 0.1s, background 0.2s; }
+  .counter-num { font-size: 0.78rem; color: rgba(255,255,255,0.4); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+  .counter-num.warn { color: #f59e0b; }
+  .counter-num.over { color: #ef4444; }
+
+  /* 質問タグ */
+  .question-toggle {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .question-toggle.active {
+    background: rgba(251,191,36,0.12);
+    border-color: rgba(251,191,36,0.4);
+  }
+  .question-toggle .q-icon { font-size: 1.2rem; }
+  .question-toggle .q-text { font-size: 0.9rem; color: rgba(255,255,255,0.6); flex: 1; }
+  .question-toggle.active .q-text { color: #fbbf24; font-weight: 700; }
+  .question-toggle .q-check {
+    width: 20px; height: 20px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .question-toggle.active .q-check {
+    background: #fbbf24; border-color: #fbbf24; color: #000;
+  }
+
+  .send-btn {
+    width: 100%; padding: 14px;
+    background: #4f46e5; color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    border: none; border-radius: 10px;
+    cursor: pointer; letter-spacing: 0.05em;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .send-btn:active { transform: scale(0.97); background: #3730a3; }
+  .send-btn:disabled { background: #333; color: rgba(255,255,255,0.3); cursor: default; }
+
+  .reactions-title { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; text-align: center; }
+  .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
+  .react-btn {
+    padding: 18px 0 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .react-emoji { font-size: 1.8rem; line-height: 1; }
+  .react-label { font-size: 0.8rem; color: rgba(255,255,255,0.55); font-weight: 700; }
+  .react-btn:active { transform: scale(0.94); background: rgba(255,255,255,0.12); }
+
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+    color: #fff; padding: 10px 22px; border-radius: 50px;
+    font-size: 0.9rem; opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="event-title" id="event-title">基調講演</p>
+  <p class="page-title">コメントを送ろう</p>
+</div>
+
+<div class="card">
+  <label>コメント（55文字以内）</label>
+  <textarea id="text" placeholder="一言どうぞ..." maxlength="55"></textarea>
+  <div class="counter-row">
+    <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+    <span class="counter-num" id="counter">0 / 55</span>
+  </div>
+  <div class="question-toggle" id="q-toggle">
+    <span class="q-icon">❓</span>
+    <span class="q-text">質問として送る</span>
+    <span class="q-check" id="q-check"></span>
+  </div>
+  <button class="send-btn" id="send-btn">画面に流す 🚀</button>
+</div>
+
+<p class="reactions-title">リアクションを送る</p>
+<div class="reactions">
+  <button class="react-btn" data-type="同意！"><span class="react-emoji">👍</span><span class="react-label">同意！</span></button>
+  <button class="react-btn" data-type="笑"><span class="react-emoji">😂</span><span class="react-label">笑</span></button>
+  <button class="react-btn" data-type="なるほど！"><span class="react-emoji">💡</span><span class="react-label">なるほど！</span></button>
+  <button class="react-btn" data-type="？"><span class="react-emoji">🤔</span><span class="react-label">？</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ASIIOGkT9W55Ts8vo-HFkQ_dnqxpo3S';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const title = params.get('title');
+if (title) document.getElementById('event-title').textContent = decodeURIComponent(title);
+
+const MAX = 55;
+const textarea = document.getElementById('text');
+const progress = document.getElementById('progress');
+const counter  = document.getElementById('counter');
+let isQuestion = false;
+
+textarea.addEventListener('input', () => {
+  const len = textarea.value.length;
+  const pct = Math.min(len / MAX * 100, 100);
+  progress.style.width = pct + '%';
+  counter.textContent = len + ' / ' + MAX;
+  if (pct >= 100) { progress.style.background = '#ef4444'; counter.className = 'counter-num over'; }
+  else if (pct >= 80) { progress.style.background = '#f59e0b'; counter.className = 'counter-num warn'; }
+  else { progress.style.background = '#4f46e5'; counter.className = 'counter-num'; }
+});
+
+const qToggle = document.getElementById('q-toggle');
+const qCheck  = document.getElementById('q-check');
+qToggle.addEventListener('click', () => {
+  isQuestion = !isQuestion;
+  qToggle.classList.toggle('active', isQuestion);
+  qCheck.textContent = isQuestion ? '✓' : '';
+});
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+document.getElementById('send-btn').addEventListener('click', async () => {
+  const text = textarea.value.trim();
+  if (!text) return;
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  const { error } = await client.from('comments').insert({ text, is_question: isQuestion });
+  btn.disabled = false;
+  if (error) { toast('エラーが発生しました'); return; }
+  textarea.value = '';
+  progress.style.width = '0%';
+  progress.style.background = '#4f46e5';
+  counter.textContent = '0 / 55';
+  counter.className = 'counter-num';
+  isQuestion = false;
+  qToggle.classList.remove('active');
+  qCheck.textContent = '';
+  toast(isQuestion ? '質問を送信しました！' : '送信しました！');
+});
+
+document.querySelectorAll('.react-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const type = btn.dataset.type;
+    await client.from('reactions').insert({ type });
+    toast(type + ' を送りました！');
+  });
+});
+</script>
+</body>
+</html>

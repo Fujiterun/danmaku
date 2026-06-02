@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>弾幕ディスプレイ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 100vw; height: 100vh; overflow: hidden; font-family: 'Noto Sans JP', sans-serif; }
+  #screen { width: 100%; height: 100%; position: relative; overflow: hidden; }
+
+  #session-label {
+    position: fixed; top: 18px; left: 24px; z-index: 20;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  #session-name { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.08em; }
+  #event-name   { font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.5; }
+
+  #description-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+    padding: 10px 24px;
+    background: rgba(0,0,0,0.45);
+    font-size: 0.9rem; letter-spacing: 0.05em; opacity: 0.85;
+    display: none;
+  }
+
+  #qr-box {
+    position: fixed; bottom: 20px; right: 20px; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0.85;
+  }
+  #qr-label { font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; opacity: 0.6; }
+
+  #stats {
+    position: fixed; bottom: 20px; left: 24px;
+    font-size: 0.72rem; opacity: 0.25; letter-spacing: 0.05em;
+  }
+
+  .danmaku {
+    position: absolute; white-space: nowrap;
+    font-weight: 700; pointer-events: none; will-change: transform;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.85);
+  }
+  .danmaku.is-question {
+    border-bottom: 2px solid #fbbf24;
+    padding-bottom: 2px;
+  }
+  .reaction-burst {
+    position: absolute; font-size: 3rem; pointer-events: none;
+    animation: burst 1.5s ease-out forwards;
+  }
+  @keyframes burst {
+    0%   { transform: scale(0.5) translateY(0);     opacity: 1; }
+    100% { transform: scale(2)   translateY(-120px); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="screen"></div>
+<div id="session-label">
+  <span id="session-name">基調講演</span>
+  <span id="event-name"></span>
+</div>
+<div id="description-bar" id="desc-bar"></div>
+<div id="qr-box">
+  <canvas id="qr-canvas"></canvas>
+  <div id="qr-label">コメントはこちら</div>
+</div>
+<div id="stats">0 コメント</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ASIIOGkT9W55Ts8vo-HFkQ_dnqxpo3S';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params   = new URLSearchParams(window.location.search);
+const session  = params.get('session')  || '基調講演';
+const event    = params.get('event')    || '';
+const postUrl  = params.get('post')     || '';
+const desc     = params.get('desc')     || '';
+const bgColor  = params.get('bg')       || '#000000';
+const fgColor  = params.get('fg')       || '#ffffff';
+const speed    = parseFloat(params.get('speed') || '1');
+
+document.body.style.background = bgColor;
+document.getElementById('session-name').style.color = fgColor;
+document.getElementById('session-name').textContent = session;
+if (event) { document.getElementById('event-name').textContent = event; document.getElementById('event-name').style.color = fgColor; }
+
+if (desc) {
+  const bar = document.getElementById('description-bar');
+  bar.textContent = desc;
+  bar.style.color = fgColor;
+  bar.style.display = 'block';
+}
+
+document.getElementById('qr-label').style.color = fgColor;
+document.getElementById('stats').style.color = fgColor;
+
+if (postUrl) {
+  QRCode.toCanvas(document.getElementById('qr-canvas'), postUrl, {
+    width: 120, margin: 2,
+    color: { dark: fgColor, light: '#00000000' }
+  });
+} else {
+  document.getElementById('qr-box').style.display = 'none';
+}
+
+const screen = document.getElementById('screen');
+const stats  = document.getElementById('stats');
+let count = 0;
+const TRACKS = 10;
+const trackLastEnd = new Array(TRACKS).fill(0);
+
+function getTrackY(i) {
+  return Math.floor((screen.offsetHeight - 60) / TRACKS * i) + 20;
+}
+
+function launch(text, isQuestion) {
+  const el = document.createElement('div');
+  el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
+  el.textContent = (isQuestion ? '❓ ' : '') + text;
+  el.style.color = fgColor;
+
+  const baseSize = 2.2;
+  el.style.fontSize = baseSize + 'rem';
+  document.body.appendChild(el);
+  const w = el.offsetWidth;
+  document.body.removeChild(el);
+
+  const now = Date.now();
+  let track = 0, earliest = Infinity;
+  for (let i = 0; i < TRACKS; i++) {
+    if (trackLastEnd[i] < earliest) { earliest = trackLastEnd[i]; track = i; }
+  }
+  const baseDuration = 12;
+  const duration = (baseDuration / speed) + Math.random() * (3 / speed);
+  trackLastEnd[track] = now + duration * 1000;
+
+  el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
+  el.textContent = (isQuestion ? '❓ ' : '') + text;
+  el.style.color = fgColor;
+  el.style.fontSize = baseSize + 'rem';
+  el.style.top = getTrackY(track) + 'px';
+  el.style.left = screen.offsetWidth + 'px';
+  el.style.transition = `transform ${duration}s linear`;
+  screen.appendChild(el);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transform = `translateX(${-(screen.offsetWidth + w + 100)}px)`;
+  }));
+  setTimeout(() => el.remove(), (duration + 1) * 1000);
+
+  count++;
+  stats.textContent = count + ' コメント';
+}
+
+function launchReaction(type) {
+  const map = { '同意！':'👍', '笑':'😂', 'なるほど！':'💡', '？':'🤔' };
+  const emoji = map[type] || type;
+  for (let j = 0; j < 4; j++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'reaction-burst';
+      el.textContent = emoji;
+      el.style.left   = (Math.random() * 85 + 5) + '%';
+      el.style.bottom = (Math.random() * 40 + 10) + '%';
+      screen.appendChild(el);
+      setTimeout(() => el.remove(), 1600);
+    }, j * 200);
+  }
+}
+
+client.channel('comments')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, p => {
+    launch(p.new.text, p.new.is_question);
+  }).subscribe();
+
+client.channel('reactions')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reactions' }, p => {
+    launchReaction(p.new.type);
+  }).subscribe();
+</script>
+</body>
+</html>
