@@ -76,9 +76,12 @@ async function init() {
   }
   if (cfg.description) {
     const bar = document.getElementById('description-bar');
-    bar.textContent = cfg.description;
     bar.style.color = fgColor;
     bar.style.display = 'block';
+    // 改行を<br>に変換（textContentでHTMLは無効化）
+    bar.innerHTML = cfg.description
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\n/g,'<br>');
   }
   document.getElementById('qr-label').style.color = fgColor;
 
