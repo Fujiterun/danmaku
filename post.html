@@ -39,6 +39,7 @@
   }
   textarea:focus { border-color: rgba(255,255,255,0.4); }
   textarea::placeholder { color: rgba(255,255,255,0.25); }
+
   .counter-row { display: flex; align-items: center; gap: 10px; }
   .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; }
   .progress-fill { height: 100%; width: 0%; border-radius: 4px; background: #4f46e5; transition: width 0.1s, background 0.2s; }
@@ -94,46 +95,36 @@
   .history-toggle:active { background: rgba(255,255,255,0.08); }
   .history-toggle .arrow { font-size: 0.8rem; transition: transform 0.2s; }
   .history-toggle.open .arrow { transform: rotate(180deg); }
-
   .history-body { display: none; margin-top: 8px; }
   .history-body.open { display: block; }
-
-  .history-toolbar {
-    display: flex; justify-content: flex-end; margin-bottom: 10px;
-  }
+  .history-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
   .reload-btn {
-    padding: 6px 14px; font-size: 0.8rem;
-    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px; color: rgba(255,255,255,0.5); cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; transition: background 0.15s;
+    padding: 6px 14px; font-size: 0.8rem; background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: rgba(255,255,255,0.5);
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
   }
-  .reload-btn:active { background: rgba(255,255,255,0.12); }
-
   .history-list { display: flex; flex-direction: column; gap: 8px; }
   .history-item {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; padding: 12px 14px;
-    display: flex; align-items: flex-start; gap: 10px;
+    border-radius: 10px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
   }
   .history-item.is-q { border-color: rgba(251,191,36,0.25); background: rgba(251,191,36,0.04); }
   .history-body-text { flex: 1; }
   .history-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 4px; }
   .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.25); display: flex; align-items: center; gap: 8px; }
   .q-tag { font-size: 0.68rem; padding: 1px 6px; background: rgba(251,191,36,0.15); color: #fbbf24; border-radius: 4px; }
-
   .agree-btn {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 8px 10px; min-width: 52px;
+    padding: 8px 10px; min-width: 52px; flex-shrink: 0;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
-    transition: background 0.15s, transform 0.1s; flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
   }
   .agree-btn:active { transform: scale(0.93); }
   .agree-btn.agreed { background: rgba(79,70,229,0.2); border-color: rgba(79,70,229,0.5); }
   .agree-icon { font-size: 1.1rem; }
   .agree-count { font-size: 0.72rem; color: rgba(255,255,255,0.45); font-weight: 700; }
   .agree-btn.agreed .agree-count { color: #818cf8; }
-
   .history-empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.85rem; padding: 24px 0; }
 
   .toast {
@@ -173,11 +164,8 @@
     </div>
     <button class="send-btn" id="send-btn">画面に流す 🚀</button>
   </div>
-
   <p class="reactions-title">リアクションを送る</p>
   <div class="reactions" id="reactions-grid"></div>
-
-  <!-- コメント履歴 -->
   <div class="history-section">
     <button class="history-toggle" id="history-toggle" onclick="toggleHistory()">
       <span>コメント履歴を見る</span>
@@ -198,109 +186,124 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ---- 定数 ----
 const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bGN6dHJ4d3p5cWd2YmludWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTg3OTYsImV4cCI6MjA5NTk3NDc5Nn0.TTZnwaxJays6p_0tlGUGGHj4zx0cav6-jEsgKdGpPuk';
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const params    = new URLSearchParams(window.location.search);
-const sessionId = params.get('id') || 'default';
-
 const DEFAULT_REACTIONS = [
-  { label: '拍手',    display: '88888888888' },
-  { label: '同意',    display: '👍️' },
-  { label: '面白い',  display: 'wwwwwwwwwwww' },
+  { label: '拍手',     display: '88888888888' },
+  { label: '同意',     display: '👍️' },
+  { label: '面白い',   display: 'wwwwwwwwwwww' },
   { label: 'なるほど', display: '💡' }
 ];
+const MAX_CHARS = 55;
 
-// セッション初期化
+const client     = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sessionId  = new URLSearchParams(window.location.search).get('id') || 'default';
+
+// ---- ユーティリティ ----
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+function showDisabled(name) {
+  document.getElementById('event-title').textContent = name || sessionId;
+  document.getElementById('disabled-screen').style.display = 'block';
+  document.getElementById('post-content').style.display = 'none';
+}
+
+// ---- 初期化 ----
 async function init() {
-  const { data } = await client.from('sessions').select('session_name, is_active, reactions').eq('id', sessionId).single();
-  if (!data || data.is_active === false) {
-    document.getElementById('event-title').textContent = data ? data.session_name : sessionId;
-    document.getElementById('disabled-screen').style.display = 'block';
-    return;
-  }
+  const { data } = await client.from('sessions')
+    .select('session_name, is_active, reactions')
+    .eq('id', sessionId).single();
+
+  if (!data || data.is_active === false) { showDisabled(data?.session_name); return; }
+
   document.getElementById('event-title').textContent = data.session_name;
   document.getElementById('post-content').style.display = 'flex';
+  setupReactions(data.reactions || DEFAULT_REACTIONS);
+}
 
-  const reactions = data.reactions || DEFAULT_REACTIONS;
+function setupReactions(reactions) {
   const grid = document.getElementById('reactions-grid');
-  grid.innerHTML = reactions.map(r => `
-    <button class="react-btn" data-display="${escAttr(r.display)}">
+  grid.innerHTML = reactions.map(r =>
+    `<button class="react-btn" data-display="${escAttr(r.display)}">
       <span class="react-label">${escHtml(r.label)}</span>
-    </button>
-  `).join('');
+    </button>`
+  ).join('');
   grid.querySelectorAll('.react-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const display = btn.dataset.display;
-      await client.from('reactions').insert({ type: display, session_id: sessionId });
-      toast(btn.querySelector('.react-label').textContent + ' を送りました！');
+      await client.from('reactions').insert({ type: btn.dataset.display, session_id: sessionId });
+      showToast(btn.querySelector('.react-label').textContent + ' を送りました！');
     });
   });
 }
-init();
 
-// コメント入力
-const MAX = 55;
+// ---- コメント入力 ----
 const textarea = document.getElementById('text');
 const progress = document.getElementById('progress');
 const counter  = document.getElementById('counter');
 let isQuestion = false;
 
 textarea.addEventListener('input', () => {
-  const len = textarea.value.length;
-  const pct = Math.min(len / MAX * 100, 100);
+  const pct = Math.min(textarea.value.length / MAX_CHARS * 100, 100);
   progress.style.width = pct + '%';
-  counter.textContent = len + ' / ' + MAX;
-  if (pct >= 100) { progress.style.background = '#ef4444'; counter.className = 'counter-num over'; }
-  else if (pct >= 80) { progress.style.background = '#f59e0b'; counter.className = 'counter-num warn'; }
-  else { progress.style.background = '#4f46e5'; counter.className = 'counter-num'; }
+  counter.textContent  = textarea.value.length + ' / ' + MAX_CHARS;
+  if      (pct >= 100) { progress.style.background = '#ef4444'; counter.className = 'counter-num over'; }
+  else if (pct >= 80)  { progress.style.background = '#f59e0b'; counter.className = 'counter-num warn'; }
+  else                 { progress.style.background = '#4f46e5'; counter.className = 'counter-num'; }
 });
 
-const qToggle = document.getElementById('q-toggle');
-const qCheck  = document.getElementById('q-check');
-qToggle.addEventListener('click', () => {
+document.getElementById('q-toggle').addEventListener('click', () => {
   isQuestion = !isQuestion;
-  qToggle.classList.toggle('active', isQuestion);
-  qCheck.textContent = isQuestion ? '✓' : '';
+  document.getElementById('q-toggle').classList.toggle('active', isQuestion);
+  document.getElementById('q-check').textContent = isQuestion ? '✓' : '';
 });
 
 document.getElementById('send-btn').addEventListener('click', async () => {
   const text = textarea.value.trim();
   if (!text) return;
+
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
+
+  // 送信前にセッション状態を再確認
   const { data: check } = await client.from('sessions').select('is_active').eq('id', sessionId).single();
-  if (!check || check.is_active === false) {
-    document.getElementById('disabled-screen').style.display = 'block';
-    document.getElementById('post-content').style.display = 'none';
-    return;
-  }
+  if (!check || check.is_active === false) { showDisabled(); return; }
+
   const { error } = await client.from('comments').insert({ text, is_question: isQuestion, session_id: sessionId });
   btn.disabled = false;
-  if (error) { toast('エラーが発生しました'); return; }
+  if (error) { showToast('エラーが発生しました'); return; }
+
+  // 送信後リセット
   textarea.value = '';
   progress.style.width = '0%';
   progress.style.background = '#4f46e5';
-  counter.textContent = '0 / 55';
+  counter.textContent = '0 / ' + MAX_CHARS;
   counter.className = 'counter-num';
   isQuestion = false;
-  qToggle.classList.remove('active');
-  qCheck.textContent = '';
-  toast('送信しました！');
-  // 履歴が開いていたらリロード
+  document.getElementById('q-toggle').classList.remove('active');
+  document.getElementById('q-check').textContent = '';
+  showToast('送信しました！');
+
   if (document.getElementById('history-body').classList.contains('open')) loadHistory();
 });
 
-// コメント履歴
+// ---- コメント履歴 ----
 let historyLoaded = false;
 
 function toggleHistory() {
-  const toggle = document.getElementById('history-toggle');
-  const body   = document.getElementById('history-body');
-  const isOpen = body.classList.contains('open');
-  toggle.classList.toggle('open', !isOpen);
-  body.classList.toggle('open', !isOpen);
+  const isOpen = document.getElementById('history-body').classList.contains('open');
+  document.getElementById('history-toggle').classList.toggle('open', !isOpen);
+  document.getElementById('history-body').classList.toggle('open', !isOpen);
   if (!isOpen && !historyLoaded) loadHistory();
 }
 
@@ -308,40 +311,32 @@ async function loadHistory() {
   historyLoaded = true;
   const list = document.getElementById('history-list');
   list.innerHTML = '<p class="history-empty">読み込み中...</p>';
-  const { data, error } = await client
-    .from('comments').select('*')
+
+  const { data, error } = await client.from('comments').select('*')
     .eq('session_id', sessionId)
     .eq('is_hidden', false)
     .order('created_at', { ascending: false })
     .limit(50);
-  if (error || !data || !data.length) {
-    list.innerHTML = '<p class="history-empty">まだコメントはありません</p>';
-    return;
-  }
+
+  if (error || !data?.length) { list.innerHTML = '<p class="history-empty">まだコメントはありません</p>'; return; }
+
   list.innerHTML = data.map(c => {
     const dt = new Date(c.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
     return `
       <div class="history-item ${c.is_question ? 'is-q' : ''}">
         <div class="history-body-text">
           <div class="history-text">${escHtml(c.text)}</div>
-          <div class="history-meta">
-            ${dt}
-            ${c.is_question ? '<span class="q-tag">❓ 質問</span>' : ''}
-          </div>
+          <div class="history-meta">${dt}${c.is_question ? ' <span class="q-tag">❓ 質問</span>' : ''}</div>
         </div>
         <button class="agree-btn" id="agree-${c.id}" data-id="${c.id}" data-text="${escAttr(c.text)}">
           <span class="agree-icon">👍</span>
           <span class="agree-count" id="agree-count-${c.id}">${c.agree_count || 0}</span>
         </button>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
-  // データ属性からイベントリスナーを安全に設定
   list.querySelectorAll('.agree-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      sendAgree(btn.dataset.id, btn.dataset.text);
-    });
+    btn.addEventListener('click', () => sendAgree(btn.dataset.id, btn.dataset.text));
   });
 }
 
@@ -350,32 +345,16 @@ async function sendAgree(commentId, commentText) {
   if (btn.classList.contains('agreed')) return;
   btn.classList.add('agreed');
 
-  // agree_countをインクリメント
   const { data: cur } = await client.from('comments').select('agree_count').eq('id', commentId).single();
   const newCount = (cur?.agree_count || 0) + 1;
   await client.from('comments').update({ agree_count: newCount }).eq('id', commentId);
   await client.from('comment_agrees').insert({ comment_id: commentId });
-
-  // カウント表示更新
   document.getElementById('agree-count-' + commentId).textContent = newCount;
-
-  // 弾幕として「同意→コメント内容」をreactionsに流す（speed_multiplierで1.5倍速を指示）
-  await client.from('reactions').insert({
-    type: '同意→' + commentText,
-    session_id: sessionId
-  });
-
-  toast('同意しました！');
+  await client.from('reactions').insert({ type: '同意→' + commentText, session_id: sessionId });
+  showToast('同意しました！');
 }
 
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-}
+init();
 </script>
 </body>
 </html>
