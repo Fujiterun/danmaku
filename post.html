@@ -360,10 +360,15 @@ async function loadHistory() {
           <div class="history-text">${escHtml(c.text)}</div>
           <div class="history-meta">${dt}${c.is_question ? ' <span class="q-tag">❓ 質問</span>' : ''}</div>
         </div>
-        <button class="agree-btn" id="agree-${c.id}" data-id="${c.id}" data-text="${escAttr(c.text)}">
-          <span class="agree-icon">👍</span>
-          <span class="agree-count" id="agree-count-${c.id}">${c.agree_count || 0}</span>
-        </button>
+        ${c.user_id === userId
+          ? `<div class="agree-btn" style="opacity:0.25;cursor:default" title="自分のコメントには同意できません">
+              <span class="agree-icon">👍</span>
+              <span class="agree-count">${c.agree_count || 0}</span>
+             </div>`
+          : `<button class="agree-btn" id="agree-${c.id}" data-id="${c.id}" data-text="${escAttr(c.text)}">
+              <span class="agree-icon">👍</span>
+              <span class="agree-count" id="agree-count-${c.id}">${c.agree_count || 0}</span>
+             </button>`}
       </div>`;
   }).join('');
 
