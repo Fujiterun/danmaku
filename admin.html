@@ -9,7 +9,6 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #0f0f1a; color: #fff; font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; }
 
-  /* ログイン */
   #login-screen {
     min-height: 100vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 16px; padding: 24px;
@@ -28,7 +27,6 @@
   }
   #login-err { color: #ef4444; font-size: 0.85rem; }
 
-  /* メイン */
   #main-screen { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
   .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
   .top-bar h1 { font-size: 1.2rem; letter-spacing: 0.06em; }
@@ -37,7 +35,6 @@
     border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
   }
 
-  /* タブ */
   .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .tab {
     padding: 10px 18px; font-size: 0.9rem; cursor: pointer; color: rgba(255,255,255,0.4);
@@ -48,7 +45,6 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* セッションカード */
   .session-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
   .session-card {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
@@ -64,7 +60,6 @@
   .session-sub   { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
   .session-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
 
-  /* ON/OFFトグル */
   .toggle-row   { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .toggle-label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
   .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
@@ -77,7 +72,6 @@
   .status-badge.on  { background: rgba(34,197,94,0.15); color: #22c55e; }
   .status-badge.off { background: rgba(239,68,68,0.15); color: #ef4444; }
 
-  /* URL表示 */
   .url-section { margin-top: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px 14px; }
   .url-section p { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-bottom: 5px; letter-spacing: 0.05em; }
   .url-line { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -88,16 +82,24 @@
     cursor: pointer; font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
   }
 
-  /* セッション編集フォーム */
   .edit-form {
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px; padding: 20px; margin-bottom: 24px; display: none;
   }
   .edit-form.open { display: block; }
   .form-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: rgba(255,255,255,0.8); }
+
+  /* セクション区切り */
+  .form-section { margin-top: 20px; margin-bottom: 4px; }
+  .form-section-title {
+    font-size: 0.75rem; color: rgba(255,255,255,0.35); letter-spacing: 0.1em;
+    text-transform: uppercase; padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 14px;
+  }
+
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-  .field input[type=text], .field textarea {
+  .field input[type=text], .field input[type=number], .field textarea {
     width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff;
     font-size: 0.95rem; font-family: 'Noto Sans JP', sans-serif; outline: none;
@@ -106,13 +108,15 @@
   .field textarea { resize: vertical; min-height: 60px; }
   .field .hint { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 4px; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
   .speed-row { display: flex; align-items: center; gap: 12px; }
   .speed-row input[type=range] { flex: 1; accent-color: #4f46e5; }
   .speed-val { font-size: 0.9rem; font-weight: 700; min-width: 36px; text-align: right; }
+
   .color-row { display: flex; align-items: center; gap: 10px; }
   .color-row input[type=color] { width: 40px; height: 34px; border: none; background: none; cursor: pointer; border-radius: 6px; }
 
-  /* リアクション設定 */
   .reaction-header { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
   .reaction-header span { font-size: 0.75rem; color: rgba(255,255,255,0.3); padding: 0 2px; }
   .reaction-editor { display: flex; flex-direction: column; gap: 8px; }
@@ -132,7 +136,6 @@
     cursor: pointer; font-family: 'Noto Sans JP', sans-serif; text-align: left; margin-top: 8px;
   }
 
-  /* ボタン共通 */
   .btn {
     padding: 8px 16px; font-size: 0.85rem; font-weight: 700; border-radius: 8px; border: none;
     cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: transform 0.1s; white-space: nowrap;
@@ -142,7 +145,6 @@
   .btn-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
   .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 
-  /* コメント管理 */
   .session-select-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .session-select-row label { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
   .session-select-row select {
@@ -208,8 +210,12 @@
     <div style="margin-bottom:16px">
       <button class="btn btn-primary" onclick="openNewForm()">＋ 新規セッション作成</button>
     </div>
+
     <div class="edit-form" id="edit-form">
       <p class="form-title" id="form-title">新規セッション作成</p>
+
+      <!-- 基本設定 -->
+      <div class="form-section"><p class="form-section-title">基本設定</p></div>
       <div class="field">
         <label>セッションID（URLに使用・英数字とハイフンのみ）</label>
         <input type="text" id="f-id" placeholder="koen1 / bunkakai-a" maxlength="30" />
@@ -227,45 +233,99 @@
         <label>ディスクリプション（登壇者名など・下部に表示）</label>
         <textarea id="f-desc" placeholder="登壇：齋藤 一郎 / 路上博物館"></textarea>
       </div>
+
+      <!-- 表示設定 -->
+      <div class="form-section"><p class="form-section-title">表示設定</p></div>
       <div class="field-row">
         <div class="field">
           <label>背景色</label>
           <div class="color-row">
             <input type="color" id="f-bg-picker" value="#000000" oninput="document.getElementById('f-bg').value=this.value" />
-            <input type="text"  id="f-bg" value="#000000" oninput="syncPickerFromText('f-bg')" />
+            <input type="text" id="f-bg" value="#000000" oninput="syncPickerFromText('f-bg')" />
           </div>
         </div>
         <div class="field">
-          <label>文字色</label>
+          <label>文字色（通常コメント）</label>
           <div class="color-row">
             <input type="color" id="f-fg-picker" value="#ffffff" oninput="document.getElementById('f-fg').value=this.value" />
-            <input type="text"  id="f-fg" value="#ffffff" oninput="syncPickerFromText('f-fg')" />
+            <input type="text" id="f-fg" value="#ffffff" oninput="syncPickerFromText('f-fg')" />
           </div>
         </div>
       </div>
-      <div class="field">
-        <label>弾幕の速度（1.0 = デフォルト）</label>
-        <div class="speed-row">
-          <span style="font-size:0.8rem;color:rgba(255,255,255,0.35)">0.25x</span>
-          <input type="range" id="f-speed" min="0.25" max="3" step="0.25" value="1"
-            oninput="document.getElementById('f-speed-val').textContent=parseFloat(this.value).toFixed(2).replace(/\\.?0+$/,'')+'x'" />
-          <span style="font-size:0.8rem;color:rgba(255,255,255,0.35)">3x</span>
-          <span class="speed-val" id="f-speed-val">1x</span>
+      <div class="field-row">
+        <div class="field">
+          <label>タイトル文字色（空欄=通常文字色と同じ）</label>
+          <div class="color-row">
+            <input type="color" id="f-title-color-picker" value="#ffffff" oninput="document.getElementById('f-title-color').value=this.value" />
+            <input type="text" id="f-title-color" placeholder="#ffffff（省略可）" oninput="syncPickerFromText('f-title-color')" />
+          </div>
+        </div>
+        <div class="field">
+          <label>ディスクリプション文字色（空欄=通常文字色と同じ）</label>
+          <div class="color-row">
+            <input type="color" id="f-desc-color-picker" value="#ffffff" oninput="document.getElementById('f-desc-color').value=this.value" />
+            <input type="text" id="f-desc-color" placeholder="#ffffff（省略可）" oninput="syncPickerFromText('f-desc-color')" />
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>リアクションボタン設定</label>
-        <div class="reaction-header">
-          <span>ボタン名（参加者に表示）</span><span>弾幕表示テキスト</span><span></span>
+
+      <!-- 詳細設定 -->
+      <div class="form-section"><p class="form-section-title">詳細設定</p></div>
+      <div class="field-row-3">
+        <div class="field">
+          <label>縁取り色</label>
+          <div class="color-row">
+            <input type="color" id="f-stroke-picker" value="#000000" oninput="document.getElementById('f-stroke').value=this.value" />
+            <input type="text" id="f-stroke" value="#000000" oninput="syncPickerFromText('f-stroke')" />
+          </div>
         </div>
-        <div class="reaction-editor" id="reaction-editor"></div>
-        <button class="add-reaction-btn" onclick="addReactionRow()">＋ ボタンを追加</button>
+        <div class="field">
+          <label>質問コメント色</label>
+          <div class="color-row">
+            <input type="color" id="f-q-color-picker" value="#fb923c" oninput="document.getElementById('f-q-color').value=this.value" />
+            <input type="text" id="f-q-color" value="#fb923c" oninput="syncPickerFromText('f-q-color')" />
+          </div>
+        </div>
+        <div class="field">
+          <label>同意コメント色</label>
+          <div class="color-row">
+            <input type="color" id="f-agree-color-picker" value="#86efac" oninput="document.getElementById('f-agree-color').value=this.value" />
+            <input type="text" id="f-agree-color" value="#86efac" oninput="syncPickerFromText('f-agree-color')" />
+          </div>
+        </div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:8px">
+      <div class="field-row">
+        <div class="field">
+          <label>弾幕の速度（1.0 = デフォルト）</label>
+          <div class="speed-row">
+            <span style="font-size:0.8rem;color:rgba(255,255,255,0.35)">0.25x</span>
+            <input type="range" id="f-speed" min="0.25" max="3" step="0.25" value="1"
+              oninput="document.getElementById('f-speed-val').textContent=parseFloat(this.value).toFixed(2).replace(/\\.?0+$/,'')+'x'" />
+            <span style="font-size:0.8rem;color:rgba(255,255,255,0.35)">3x</span>
+            <span class="speed-val" id="f-speed-val">1x</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>コメント文字数制限</label>
+          <input type="number" id="f-max-chars" value="55" min="10" max="200" />
+          <p class="hint">10〜200文字の範囲で設定</p>
+        </div>
+      </div>
+
+      <!-- リアクション設定 -->
+      <div class="form-section"><p class="form-section-title">リアクションボタン設定</p></div>
+      <div class="reaction-header">
+        <span>ボタン名（参加者に表示）</span><span>弾幕表示テキスト</span><span></span>
+      </div>
+      <div class="reaction-editor" id="reaction-editor"></div>
+      <button class="add-reaction-btn" onclick="addReactionRow()">＋ ボタンを追加</button>
+
+      <div style="display:flex;gap:10px;margin-top:20px">
         <button class="btn btn-primary" onclick="saveSession()">保存</button>
         <button class="btn btn-secondary" onclick="closeForm()">キャンセル</button>
       </div>
     </div>
+
     <div class="session-grid" id="session-grid"><p class="empty">読み込み中...</p></div>
   </div>
 
@@ -323,6 +383,11 @@ function syncPickerFromText(base) {
   const v = document.getElementById(base).value;
   if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(base + '-picker').value = v;
 }
+function setColorField(textId, value) {
+  const v = value || '';
+  document.getElementById(textId).value = v;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(textId + '-picker').value = v;
+}
 
 // ---- ログイン ----
 async function doLogin() {
@@ -366,7 +431,7 @@ function renderSessions() {
   const grid = document.getElementById('session-grid');
   if (!sessions.length) { grid.innerHTML = '<p class="empty">セッションがありません。新規作成してください。</p>'; return; }
   grid.innerHTML = sessions.map(s => {
-    const isActive = s.is_active !== false;
+    const isActive   = s.is_active !== false;
     const displayUrl = `${BASE}display.html?id=${encodeURIComponent(s.id)}`;
     const postUrl    = `${BASE}post.html?id=${encodeURIComponent(s.id)}`;
     return `
@@ -439,15 +504,19 @@ function openNewForm() {
   document.getElementById('form-title').textContent = '新規セッション作成';
   document.getElementById('f-id').value = '';
   document.getElementById('f-id').disabled = false;
-  document.getElementById('f-name').value = '';
+  document.getElementById('f-name').value  = '';
   document.getElementById('f-event').value = '';
-  document.getElementById('f-desc').value = '';
-  document.getElementById('f-bg').value = '#000000';
-  document.getElementById('f-bg-picker').value = '#000000';
-  document.getElementById('f-fg').value = '#ffffff';
-  document.getElementById('f-fg-picker').value = '#ffffff';
+  document.getElementById('f-desc').value  = '';
+  setColorField('f-bg',    '#000000');
+  setColorField('f-fg',    '#ffffff');
+  setColorField('f-stroke','#000000');
+  setColorField('f-q-color',    '#fb923c');
+  setColorField('f-agree-color','#86efac');
+  document.getElementById('f-title-color').value = '';
+  document.getElementById('f-desc-color').value  = '';
   document.getElementById('f-speed').value = 1;
   document.getElementById('f-speed-val').textContent = '1x';
+  document.getElementById('f-max-chars').value = 55;
   document.getElementById('reaction-editor').innerHTML = '';
   DEFAULT_REACTIONS.forEach(r => addReactionRow(r.label, r.display));
   document.getElementById('edit-form').classList.add('open');
@@ -459,17 +528,21 @@ function openEditForm(id) {
   if (!s) return;
   editingId = id;
   document.getElementById('form-title').textContent = 'セッションを編集';
-  document.getElementById('f-id').value = s.id;
+  document.getElementById('f-id').value    = s.id;
   document.getElementById('f-id').disabled = true;
   document.getElementById('f-name').value  = s.session_name || '';
   document.getElementById('f-event').value = s.event_name   || '';
   document.getElementById('f-desc').value  = s.description  || '';
-  document.getElementById('f-bg').value    = s.bg_color     || '#000000';
-  document.getElementById('f-bg-picker').value = s.bg_color || '#000000';
-  document.getElementById('f-fg').value    = s.fg_color     || '#ffffff';
-  document.getElementById('f-fg-picker').value = s.fg_color || '#ffffff';
-  document.getElementById('f-speed').value = s.speed        || 1;
+  setColorField('f-bg',    s.bg_color           || '#000000');
+  setColorField('f-fg',    s.fg_color           || '#ffffff');
+  setColorField('f-stroke',s.text_stroke_color  || '#000000');
+  setColorField('f-q-color',    s.question_color || '#fb923c');
+  setColorField('f-agree-color',s.agree_color    || '#86efac');
+  document.getElementById('f-title-color').value = s.title_color || '';
+  document.getElementById('f-desc-color').value  = s.desc_color  || '';
+  document.getElementById('f-speed').value = s.speed || 1;
   document.getElementById('f-speed-val').textContent = (s.speed || 1) + 'x';
+  document.getElementById('f-max-chars').value = s.max_chars || 55;
   document.getElementById('reaction-editor').innerHTML = '';
   (s.reactions || DEFAULT_REACTIONS).forEach(r => addReactionRow(r.label, r.display));
   document.getElementById('edit-form').classList.add('open');
@@ -485,13 +558,25 @@ async function saveSession() {
   const desc     = document.getElementById('f-desc').value.trim();
   const bg       = document.getElementById('f-bg').value;
   const fg       = document.getElementById('f-fg').value;
+  const stroke   = document.getElementById('f-stroke').value;
+  const qColor   = document.getElementById('f-q-color').value;
+  const agColor  = document.getElementById('f-agree-color').value;
+  const tColor   = document.getElementById('f-title-color').value.trim() || null;
+  const dColor   = document.getElementById('f-desc-color').value.trim()  || null;
   const speed    = parseFloat(document.getElementById('f-speed').value);
+  const maxChars = parseInt(document.getElementById('f-max-chars').value) || 55;
   const reactions = getReactionsFromForm();
 
-  if (!id)              { showToast('セッションIDを入力してください'); return; }
-  if (!reactions.length){ showToast('リアクションボタンを1つ以上設定してください'); return; }
+  if (!id)               { showToast('セッションIDを入力してください'); return; }
+  if (!reactions.length) { showToast('リアクションボタンを1つ以上設定してください'); return; }
 
-  const payload = { session_name: name, event_name: event, description: desc, bg_color: bg, fg_color: fg, speed, reactions };
+  const payload = {
+    session_name: name, event_name: event, description: desc,
+    bg_color: bg, fg_color: fg, text_stroke_color: stroke,
+    question_color: qColor, agree_color: agColor,
+    title_color: tColor, desc_color: dColor,
+    speed, max_chars: maxChars, reactions
+  };
   const { error } = editingId
     ? await client.from('sessions').update(payload).eq('id', editingId)
     : await client.from('sessions').insert({ id, ...payload, is_active: true });
