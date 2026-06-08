@@ -179,6 +179,25 @@ function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed
     scrollElement(el, pickTrack(), 1);
     count++;
     stats.textContent = count + ' コメント';
+
+    // マイルストーン：100件ごとに大きな文字で流す
+    if (count % 100 === 0) {
+      setTimeout(() => launchMilestone(count), 500);
+    }
+  }
+
+  function launchMilestone(n) {
+    const text = `🎉 総コメント数 ${n} 件！`;
+    const el   = document.createElement('div');
+    el.className    = 'danmaku';
+    el.textContent  = text;
+    el.style.fontSize   = '3.5rem';
+    el.style.color      = '#ffe66d';
+    el.style.textShadow = makeTextShadow('#000000');
+    el.style.zIndex     = '50';
+    // 中央トラック付近に流す
+    const mid = Math.floor(TRACKS / 2);
+    scrollElement(el, mid, 0.6); // ゆっくり流す
   }
 
   async function launchReaction(displayText) {
