@@ -272,7 +272,7 @@
       <div class="field">
         <label>セッションID（英数字とハイフンのみ・日付は自動付与）</label>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="f-id" placeholder="koen1 / bunkakai-a" maxlength="30" oninput="updateIdPreview()" style="flex:1" />
+          <input type="text" id="f-id" placeholder="SessionID" maxlength="30" oninput="updateIdPreview()" style="flex:1" />
           <span style="font-size:0.85rem;color:rgba(255,255,255,0.35);white-space:nowrap" id="f-id-suffix"></span>
         </div>
         <p class="hint" id="f-id-preview">例：koen1 → display.html?id=koen1-250926</p>
@@ -280,12 +280,12 @@
       </div>
       <div class="field">
         <label>セッション名（最大100文字）</label>
-        <input type="text" id="f-name" placeholder="基調講演" maxlength="100" />
+        <input type="text" id="f-name" placeholder="管理画面にのみ表示されます" maxlength="100" />
       </div>
       <div class="field-row">
         <div class="field">
           <label>イベント名（任意）</label>
-          <input type="text" id="f-event" placeholder="友の会サミット2026" />
+          <input type="text" id="f-event" placeholder="ここに記入するイベント名は公開されます" />
         </div>
         <div class="field">
           <label>開始日（任意）</label>
@@ -294,7 +294,7 @@
       </div>
       <div class="field">
         <label>ディスクリプション（登壇者名など・下部に表示）</label>
-        <textarea id="f-desc" placeholder="登壇：齋藤 一郎 / 路上博物館"></textarea>
+        <textarea id="f-desc" placeholder="ここに記入した内容は公開されます。登壇者名などを表示するための項目です。"></textarea>
       </div>
 
       <div class="form-section"><p class="form-section-title">表示設定</p></div>
