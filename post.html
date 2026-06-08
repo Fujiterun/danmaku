@@ -233,13 +233,27 @@ function showDisabled(name) {
   document.getElementById('post-content').style.display = 'none';
 }
 
+// ---- ユーザーID（localStorage永続化） ----
+function getUserId() {
+  let uid = localStorage.getItem('danmaku_user_id');
+  if (!uid) {
+    uid = 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    localStorage.setItem('danmaku_user_id', uid);
+  }
+  return uid;
+}
+const userId = getUserId();
+
 // ---- 初期化 ----
 async function init() {
-  const { data } = await client.from('sessions')
-    .select('session_name, is_active, reactions, max_chars')
-    .eq('id', sessionId).single();
+  const [{ data }, { data: blockData }] = await Promise.all([
+    client.from('sessions').select('session_name, is_active, reactions, max_chars').eq('id', sessionId).single(),
+    client.from('blocked_users').select('id').eq('session_id', sessionId).eq('user_id', userId).limit(1)
+  ]);
 
   if (!data || data.is_active === false) { showDisabled(data?.session_name); return; }
+  // ブロック済みユーザーは投稿フォームを非表示（トーストのみ表示）
+  const isBlocked = blockData && blockData.length > 0;
 
   maxChars = data.max_chars || 55;
   document.getElementById('event-title').textContent = data.session_name;
@@ -300,7 +314,7 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   const { data: check } = await client.from('sessions').select('is_active').eq('id', sessionId).single();
   if (!check || check.is_active === false) { showDisabled(); return; }
 
-  const { error } = await client.from('comments').insert({ text, is_question: isQuestion, session_id: sessionId });
+  const { error } = await client.from('comments').insert({ text, is_question: isQuestion, session_id: sessionId, user_id: userId });
   btn.disabled = false;
   if (error) { showToast('エラーが発生しました'); return; }
 

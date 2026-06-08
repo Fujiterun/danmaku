@@ -238,9 +238,24 @@ function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed
     scrollElement(el, pickTrack(), isAgree ? 1.5 : 1);
   }
 
+  // ブロックリストをキャッシュ（起動時＋随時更新）
+  let blockedSet = new Set();
+  async function loadBlockedUsers() {
+    const { data } = await client.from('blocked_users').select('user_id').eq('session_id', sessionId);
+    blockedSet = new Set((data || []).map(b => b.user_id));
+  }
+  await loadBlockedUsers();
+
+  // blocked_usersの変更をリアルタイムで反映
+  client.channel('blocked-' + sessionId)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_users', filter: 'session_id=eq.' + sessionId }, async () => {
+      await loadBlockedUsers();
+    }).subscribe();
+
   client.channel('comments-' + sessionId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: 'session_id=eq.' + sessionId }, p => {
       if (p.new.is_hidden) return;
+      if (p.new.user_id && blockedSet.has(p.new.user_id)) return;
       launch(p.new.text, p.new.is_question);
     }).subscribe();
 
