@@ -138,11 +138,11 @@ async function init() {
     colorDark: '#000000', colorLight: '#ffffff'
   });
 
-  startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed });
+  await startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed });
 }
 
 // ---- リアルタイム弾幕 ----
-function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed }) {
+async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed }) {
   const screen    = document.getElementById('screen');
   const stats     = document.getElementById('stats');
   const isMobile  = window.innerWidth <= 600;
