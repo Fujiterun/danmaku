@@ -23,6 +23,18 @@
   #qr-label { font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; opacity: 0.6; }
   .danmaku { position: absolute; white-space: pre; font-weight: 700; pointer-events: none; will-change: transform; line-height: 1.4; }
   #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 0.9rem; opacity: 0.3; }
+
+  /* スマホ対応 */
+  @media (max-width: 600px) {
+    #session-name  { font-size: 1.2rem; }
+    #event-name    { font-size: 0.9rem; }
+    #stats         { font-size: 0.65rem; top: 12px; right: 12px; }
+    #session-label { top: 12px; left: 12px; }
+    #qr-box        { bottom: 12px; right: 12px; }
+    #qr-link canvas, #qr-link img { width: 90px !important; height: 90px !important; }
+    #qr-label      { font-size: 0.6rem; }
+    #description-bar { font-size: 0.75rem; padding: 8px 12px; }
+  }
 </style>
 </head>
 <body>
@@ -54,12 +66,16 @@ const sessionId = new URLSearchParams(window.location.search).get('id') || 'defa
 // ---- 文字サイズ計算 ----
 function rand(a, b) { return a + Math.random() * (b - a); }
 function calcSize(text) {
+  const isMobile = window.innerWidth <= 600;
+  const scale    = isMobile ? 0.65 : 1;
   const len = text.length;
-  if (len <= 3)  return Math.floor(rand(36, 42));
-  if (len <= 8)  return Math.floor(rand(26, 32));
-  if (len <= 20) return Math.floor(rand(20, 24));
-  if (len <= 40) return Math.floor(rand(18, 20));
-  return 14;
+  let base;
+  if (len <= 3)  base = rand(36, 42);
+  else if (len <= 8)  base = rand(26, 32);
+  else if (len <= 20) base = rand(20, 24);
+  else if (len <= 40) base = rand(18, 20);
+  else base = 14;
+  return Math.floor(base * scale);
 }
 
 // ---- 縁取りスタイル生成 ----
@@ -127,24 +143,27 @@ async function init() {
 
 // ---- リアルタイム弾幕 ----
 function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed }) {
-  const screen = document.getElementById('screen');
-  const stats  = document.getElementById('stats');
+  const screen    = document.getElementById('screen');
+  const stats     = document.getElementById('stats');
+  const isMobile  = window.innerWidth <= 600;
+  const trackCount = isMobile ? 10 : TRACKS;
   let count = 0;
-  const trackLastEnd = new Array(TRACKS).fill(0);
+  const trackLastEnd = new Array(trackCount).fill(0);
 
   function getTrackY(i) {
-    const topMargin  = 160, bottomMargin = 220;
-    const usable     = screen.offsetHeight - topMargin - bottomMargin;
-    const halfTracks = TRACKS / 2;
-    const spacing    = usable / halfTracks;
-    const idx        = Math.floor(i / 2);
-    const offset     = (i % 2 === 1) ? Math.round(spacing / 2) : 0;
+    const topMargin    = isMobile ? 80  : 160;
+    const bottomMargin = isMobile ? 120 : 220;
+    const usable       = screen.offsetHeight - topMargin - bottomMargin;
+    const halfTracks   = trackCount / 2;
+    const spacing      = usable / halfTracks;
+    const idx          = Math.floor(i / 2);
+    const offset       = (i % 2 === 1) ? Math.round(spacing / 2) : 0;
     return topMargin + Math.round(spacing * idx) + offset;
   }
 
   function pickTrack() {
     let track = 0, earliest = Infinity;
-    for (let i = 0; i < TRACKS; i++) {
+    for (let i = 0; i < trackCount; i++) {
       if (trackLastEnd[i] < earliest) { earliest = trackLastEnd[i]; track = i; }
     }
     return track;
@@ -196,7 +215,7 @@ function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed
     el.style.textShadow = makeTextShadow('#000000');
     el.style.zIndex     = '50';
     // 中央トラック付近に流す
-    const mid = Math.floor(TRACKS / 2);
+    const mid = Math.floor(trackCount / 2);
     scrollElement(el, mid, 0.6); // ゆっくり流す
   }
 
