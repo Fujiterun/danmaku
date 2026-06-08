@@ -213,7 +213,8 @@ const DEFAULT_REACTIONS = [
 
 const client    = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const sessionId = new URLSearchParams(window.location.search).get('id') || 'default';
-let maxChars    = 55;
+let maxChars  = 55;
+let isBlocked = false;
 
 // ---- ユーティリティ ----
 function escHtml(s) {
@@ -253,7 +254,7 @@ async function init() {
 
   if (!data || data.is_active === false) { showDisabled(data?.session_name); return; }
   // ブロック済みユーザーは投稿フォームを非表示（トーストのみ表示）
-  const isBlocked = blockData && blockData.length > 0;
+  isBlocked = blockData && blockData.length > 0;
 
   maxChars = data.max_chars || 55;
   document.getElementById('event-title').textContent = data.session_name;
