@@ -153,13 +153,17 @@ async function init() {
   }
 
   // QR（白背景・黒色固定・クリックで投稿URLへ）
-  document.getElementById('qr-label').style.color = fgColor;
   const postUrl = location.href.replace('display.html', 'post.html').replace(/\?.*/, '') + '?id=' + encodeURIComponent(sessionId);
-  document.getElementById('qr-link').href = postUrl;
-  new QRCode(document.getElementById('qr-canvas'), {
-    text: postUrl, width: 180, height: 180,
-    colorDark: '#000000', colorLight: '#ffffff'
-  });
+  if (cfg.show_qr === false) {
+    document.getElementById('qr-box').style.display = 'none';
+  } else {
+    document.getElementById('qr-label').style.color = fgColor;
+    document.getElementById('qr-link').href = postUrl;
+    new QRCode(document.getElementById('qr-canvas'), {
+      text: postUrl, width: 180, height: 180,
+      colorDark: '#000000', colorLight: '#ffffff'
+    });
+  }
 
   await startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed });
 }
