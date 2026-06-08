@@ -270,9 +270,13 @@
 
       <div class="form-section"><p class="form-section-title">基本設定</p></div>
       <div class="field">
-        <label>セッションID（URLに使用・英数字とハイフンのみ）</label>
-        <input type="text" id="f-id" placeholder="koen1 / bunkakai-a" maxlength="30" />
-        <p class="hint">例：koen1 → display.html?id=koen1</p>
+        <label>セッションID（英数字とハイフンのみ・日付は自動付与）</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="f-id" placeholder="koen1 / bunkakai-a" maxlength="30" oninput="updateIdPreview()" style="flex:1" />
+          <span style="font-size:0.85rem;color:rgba(255,255,255,0.35);white-space:nowrap" id="f-id-suffix"></span>
+        </div>
+        <p class="hint" id="f-id-preview">例：koen1 → display.html?id=koen1-250926</p>
+        <p style="font-size:0.75rem;color:#ef4444;margin-top:4px;display:none" id="f-id-dup">⚠️ セッションIDが重複しています</p>
       </div>
       <div class="field">
         <label>セッション名（最大100文字）</label>
@@ -445,6 +449,28 @@ function setColorField(textId, value) {
   if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(textId + '-picker').value = v;
 }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+// ---- セッションID関連 ----
+function getDateSuffix() {
+  const now = new Date();
+  const yy  = String(now.getFullYear()).slice(2);
+  const mm  = String(now.getMonth() + 1).padStart(2, '0');
+  const dd  = String(now.getDate()).padStart(2, '0');
+  return yy + mm + dd;
+}
+
+function updateIdPreview() {
+  const raw    = document.getElementById('f-id').value.trim().replace(/[^a-zA-Z0-9\-_]/g, '');
+  const suffix = '-' + getDateSuffix();
+  const fullId = raw + suffix;
+  document.getElementById('f-id-suffix').textContent = suffix;
+  document.getElementById('f-id-preview').textContent = raw
+    ? `完成ID: ${fullId} → display.html?id=${fullId}`
+    : '例：koen1 → display.html?id=koen1-250926';
+  // 重複チェック
+  const isDup = raw && sessions.some(s => s.id === fullId);
+  document.getElementById('f-id-dup').style.display = isDup ? 'block' : 'none';
+}
 
 // ---- ログイン ----
 async function doLogin() {
@@ -720,6 +746,7 @@ function openNewForm() {
   document.getElementById('form-title').textContent = '新規セッション作成';
   document.getElementById('f-id').value = '';
   document.getElementById('f-id').disabled = false;
+  updateIdPreview();
   document.getElementById('f-name').value  = '';
   document.getElementById('f-event').value = '';
   document.getElementById('f-desc').value  = '';
@@ -747,6 +774,9 @@ function openEditForm(id) {
   document.getElementById('form-title').textContent = 'セッションを編集';
   document.getElementById('f-id').value    = s.id;
   document.getElementById('f-id').disabled = true;
+  document.getElementById('f-id-suffix').textContent = '';
+  document.getElementById('f-id-preview').textContent = `URL: display.html?id=${s.id}`;
+  document.getElementById('f-id-dup').style.display = 'none';
   document.getElementById('f-name').value  = s.session_name || '';
   document.getElementById('f-event').value = s.event_name   || '';
   document.getElementById('f-desc').value  = s.description  || '';
@@ -770,7 +800,8 @@ function openEditForm(id) {
 function closeForm() { document.getElementById('edit-form').classList.remove('open'); }
 
 async function saveSession() {
-  const id       = document.getElementById('f-id').value.trim().replace(/[^a-zA-Z0-9\-_]/g, '');
+  const rawId    = document.getElementById('f-id').value.trim().replace(/[^a-zA-Z0-9\-_]/g, '');
+  const id       = editingId ? rawId : rawId + '-' + getDateSuffix();
   const name     = document.getElementById('f-name').value.trim()  || '基調講演';
   const event    = document.getElementById('f-event').value.trim();
   const desc     = document.getElementById('f-desc').value.trim();
@@ -788,6 +819,12 @@ async function saveSession() {
 
   if (!id)               { showToast('セッションIDを入力してください'); return; }
   if (!reactions.length) { showToast('リアクションボタンを1つ以上設定してください'); return; }
+  // 新規作成時の重複チェック
+  if (!editingId && sessions.some(s => s.id === id)) {
+    document.getElementById('f-id-dup').style.display = 'block';
+    showToast('セッションIDが重複しています');
+    return;
+  }
 
   const payload = {
     session_name: name, event_name: event, description: desc, start_date: startDate,
