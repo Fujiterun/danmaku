@@ -278,6 +278,7 @@ function setupReactions(reactions) {
   ).join('');
   grid.querySelectorAll('.react-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
+      if (isBlocked) { showToast('このセッションでは送信できません'); return; }
       await client.from('reactions').insert({ type: btn.dataset.display, session_id: sessionId });
       showToast(btn.querySelector('.react-label').textContent + ' を送りました！');
     });
@@ -381,13 +382,22 @@ async function sendAgree(commentId, commentText) {
   const btn = document.getElementById('agree-' + commentId);
   if (btn.classList.contains('agreed')) return;
   btn.classList.add('agreed');
-  const { data: cur } = await client.from('comments').select('agree_count').eq('id', commentId).single();
-  const newCount = (cur?.agree_count || 0) + 1;
-  await client.from('comments').update({ agree_count: newCount }).eq('id', commentId);
-  await client.from('comment_agrees').insert({ comment_id: commentId });
-  document.getElementById('agree-count-' + commentId).textContent = newCount;
-  await client.from('reactions').insert({ type: '同意→' + commentText, session_id: sessionId });
-  showToast('同意しました！');
+  try {
+    const { data: cur, error: fetchErr } = await client.from('comments').select('agree_count').eq('id', commentId).single();
+    if (fetchErr) throw fetchErr;
+    const newCount = (cur?.agree_count || 0) + 1;
+    const { error: updateErr } = await client.from('comments').update({ agree_count: newCount }).eq('id', commentId);
+    if (updateErr) throw updateErr;
+    await client.from('comment_agrees').insert({ comment_id: commentId });
+    document.getElementById('agree-count-' + commentId).textContent = newCount;
+    const { error: reactErr } = await client.from('reactions').insert({ type: '同意→' + commentText, session_id: sessionId });
+    if (reactErr) throw reactErr;
+    showToast('同意しました！');
+  } catch (err) {
+    // 失敗時はボタンを元に戻す
+    btn.classList.remove('agreed');
+    showToast('エラーが発生しました');
+  }
 }
 
 init();
