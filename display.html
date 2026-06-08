@@ -106,6 +106,12 @@ async function init() {
   const speed       = parseFloat(cfg.speed)  || 1;
 
   document.body.style.background = cfg.bg_color || '#000000';
+  if (cfg.bg_image_url) {
+    document.body.style.backgroundImage  = `url('${cfg.bg_image_url}')`;
+    document.body.style.backgroundSize   = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
+  }
 
   // セッション名・イベント名
   const sessionNameEl = document.getElementById('session-name');

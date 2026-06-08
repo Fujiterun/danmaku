@@ -298,9 +298,22 @@
       </div>
 
       <div class="form-section"><p class="form-section-title">表示設定</p></div>
+      <div class="field">
+        <label>背景画像（JPEG・WebP、最大2MB）</label>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="file" id="f-bg-image" accept="image/jpeg,image/webp"
+            style="font-size:0.85rem;color:rgba(255,255,255,0.6)" onchange="previewBgImage()" />
+          <button class="btn btn-secondary btn-sm" type="button" onclick="clearBgImage()">削除</button>
+        </div>
+        <div id="f-bg-image-preview" style="margin-top:8px;display:none">
+          <img id="f-bg-image-thumb" style="width:120px;height:68px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.15)" />
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:4px" id="f-bg-image-name"></p>
+        </div>
+        <p class="hint">設定中の画像：<span id="f-bg-image-current">なし</span></p>
+      </div>
       <div class="field-row">
         <div class="field">
-          <label>背景色</label>
+          <label>背景色（画像なしの場合に使用）</label>
           <div class="color-row">
             <input type="color" id="f-bg-picker" value="#000000" oninput="document.getElementById('f-bg').value=this.value" />
             <input type="text" id="f-bg" value="#000000" oninput="syncPickerFromText('f-bg')" />
@@ -449,6 +462,38 @@ function setColorField(textId, value) {
   if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(textId + '-picker').value = v;
 }
 function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+// ---- 画像バリデーション ----
+let currentBgImageUrl = null;
+
+function validateImageFile(file) {
+  const allowed = ['image/jpeg', 'image/webp'];
+  if (!allowed.includes(file.type)) return { ok: false, msg: 'JPEG・WebPのみ対応しています' };
+  if (file.size > 2 * 1024 * 1024) return { ok: false, msg: '画像は2MB以下にしてください' };
+  return { ok: true };
+}
+
+function previewBgImage() {
+  const file = document.getElementById('f-bg-image').files[0];
+  if (!file) return;
+  const validated = validateImageFile(file);
+  if (!validated.ok) { showToast(validated.msg); document.getElementById('f-bg-image').value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('f-bg-image-thumb').src = e.target.result;
+    document.getElementById('f-bg-image-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + 'KB)';
+    document.getElementById('f-bg-image-preview').style.display = 'block';
+    document.getElementById('f-bg-image-current').textContent = 'アップロード待ち';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearBgImage() {
+  document.getElementById('f-bg-image').value = '';
+  document.getElementById('f-bg-image-preview').style.display = 'none';
+  document.getElementById('f-bg-image-current').textContent = 'なし（保存時に削除）';
+  currentBgImageUrl = null;
+}
 
 // ---- セッションID関連 ----
 function getDateSuffix() {
@@ -751,6 +796,10 @@ function openNewForm() {
   document.getElementById('f-event').value = '';
   document.getElementById('f-desc').value  = '';
   document.getElementById('f-start-date').value = '';
+  document.getElementById('f-bg-image').value = '';
+  document.getElementById('f-bg-image-preview').style.display = 'none';
+  document.getElementById('f-bg-image-current').textContent = 'なし';
+  currentBgImageUrl = null;
   setColorField('f-bg',    '#000000');
   setColorField('f-fg',    '#ffffff');
   setColorField('f-stroke','#000000');
@@ -781,6 +830,15 @@ function openEditForm(id) {
   document.getElementById('f-event').value = s.event_name   || '';
   document.getElementById('f-desc').value  = s.description  || '';
   document.getElementById('f-start-date').value = s.start_date || '';
+  document.getElementById('f-bg-image').value = '';
+  document.getElementById('f-bg-image-preview').style.display = 'none';
+  currentBgImageUrl = s.bg_image_url || null;
+  document.getElementById('f-bg-image-current').textContent = s.bg_image_url ? '設定済み' : 'なし';
+  if (s.bg_image_url) {
+    document.getElementById('f-bg-image-thumb').src = s.bg_image_url;
+    document.getElementById('f-bg-image-name').textContent = '現在の背景画像';
+    document.getElementById('f-bg-image-preview').style.display = 'block';
+  }
   setColorField('f-bg',    s.bg_color           || '#000000');
   setColorField('f-fg',    s.fg_color           || '#ffffff');
   setColorField('f-stroke',s.text_stroke_color  || '#000000');
@@ -826,12 +884,40 @@ async function saveSession() {
     return;
   }
 
+  // 背景画像のアップロード
+  let bgImageUrl = currentBgImageUrl;
+  const bgFile = document.getElementById('f-bg-image').files[0];
+  if (bgFile) {
+    const validated = validateImageFile(bgFile);
+    if (!validated.ok) { showToast(validated.msg); return; }
+    // 旧画像を削除
+    if (currentBgImageUrl) {
+      const oldPath = currentBgImageUrl.split('/bg-images/')[1];
+      if (oldPath) await client.storage.from('bg-images').remove([decodeURIComponent(oldPath)]);
+    }
+    const ext      = bgFile.type === 'image/webp' ? 'webp' : 'jpg';
+    const filename = crypto.randomUUID() + '.' + ext;
+    const { data: uploadData, error: uploadErr } = await client.storage.from('bg-images').upload(filename, bgFile, { contentType: bgFile.type });
+    if (uploadErr) { showToast('画像のアップロードに失敗しました'); return; }
+    const { data: urlData } = client.storage.from('bg-images').getPublicUrl(filename);
+    bgImageUrl = urlData.publicUrl;
+  } else if (currentBgImageUrl === null && editingId) {
+    // 削除ボタンで明示的にnullにした場合
+    const s = sessions.find(x => x.id === editingId);
+    if (s?.bg_image_url) {
+      const oldPath = s.bg_image_url.split('/bg-images/')[1];
+      if (oldPath) await client.storage.from('bg-images').remove([decodeURIComponent(oldPath)]);
+    }
+    bgImageUrl = null;
+  }
+
   const payload = {
     session_name: name, event_name: event, description: desc, start_date: startDate,
     bg_color: bg, fg_color: fg, text_stroke_color: stroke,
     question_color: qColor, agree_color: agColor,
     title_color: tColor, desc_color: dColor,
-    speed, max_chars: maxChars, reactions
+    speed, max_chars: maxChars, reactions,
+    bg_image_url: bgImageUrl
   };
   const { error } = editingId
     ? await client.from('sessions').update(payload).eq('id', editingId)
