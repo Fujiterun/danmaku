@@ -22,6 +22,12 @@
   #qr-link { display: block; background: #fff; padding: 8px; border-radius: 8px; cursor: pointer; text-decoration: none; }
   #qr-label { font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; opacity: 0.6; }
   .danmaku { position: absolute; white-space: pre; font-weight: 700; pointer-events: none; will-change: transform; line-height: 1.4; }
+  .danmaku.is-question {
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    padding: 2px 10px;
+    background: rgba(0,0,0,0.45);
+  }
   #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 0.9rem; opacity: 0.3; }
 
   /* スマホ対応 */
@@ -205,10 +211,12 @@ async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor,
 
   function launch(text, isQuestion) {
     const color = isQuestion ? qColor : fgColor;
-    const size  = calcSize(text);
+    const baseSize = calcSize(text);
+    // 質問は1.2倍サイズ
+    const size  = isQuestion ? Math.floor(baseSize * 1.2) : baseSize;
     const el    = document.createElement('div');
-    el.className    = 'danmaku';
-    el.textContent  = (isQuestion ? '❓ ' : '') + text;
+    el.className    = 'danmaku' + (isQuestion ? ' is-question' : '');
+    el.textContent  = (isQuestion ? '【❓️】質問です▶ ' : '') + text;
     el.style.color      = color;
     el.style.fontSize   = size + 'px';
     el.style.textShadow = makeTextShadow(strokeColor);

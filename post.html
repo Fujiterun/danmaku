@@ -359,7 +359,9 @@ async function loadHistory() {
     return `
       <div class="history-item ${c.is_question ? 'is-q' : ''}">
         <div class="history-body-text">
-          <div class="history-text">${escHtml(c.text)}</div>
+          <div class="history-text" ${c.is_question ? 'style="border:1.5px solid #fbbf24;border-radius:5px;padding:2px 8px;background:rgba(251,191,36,0.06)"' : ''}>
+            ${c.is_question ? '<span style="font-size:0.8em;margin-right:4px">【❓️】質問です▶</span>' : ''}${escHtml(c.text)}
+          </div>
           <div class="history-meta">${dt}${c.is_question ? ' <span class="q-tag">❓ 質問</span>' : ''}</div>
         </div>
         ${c.user_id === userId
