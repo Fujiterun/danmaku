@@ -9,23 +9,33 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { width: 100vw; height: 100vh; overflow: hidden; font-family: 'Noto Sans JP', sans-serif; }
   #screen { width: 100%; height: 100%; position: relative; overflow: hidden; }
+
   #session-label { position: fixed; top: 18px; left: 24px; z-index: 20; display: flex; flex-direction: column; gap: 4px; }
   #session-name  { font-size: 2.1rem; font-weight: 700; letter-spacing: 0.08em; }
   #event-name    { font-size: 1.5rem; letter-spacing: 0.06em; opacity: 0.5; }
   #stats { position: fixed; top: 18px; right: 24px; z-index: 20; font-size: 0.72rem; opacity: 0.25; letter-spacing: 0.05em; }
+
   #description-bar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
     padding: 10px 24px; background: rgba(0,0,0,0.45);
     font-size: 0.9rem; letter-spacing: 0.05em; opacity: 0.85; display: none;
   }
-  #qr-box { position: fixed; bottom: 20px; right: 20px; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.85; }
-  #qr-label { font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; opacity: 0.6; }
-  .danmaku {
-    position: absolute; white-space: pre; font-weight: 700; pointer-events: none;
-    will-change: transform; text-shadow: 2px 2px 6px rgba(0,0,0,0.85); line-height: 1.4;
+
+  /* QRコード：白背景・クリックでリンク */
+  #qr-box {
+    position: fixed; bottom: 20px; right: 20px; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.9;
   }
-  .danmaku.is-question { border-bottom: 2px solid #fbbf24; padding-bottom: 2px; }
-  .danmaku.is-agree { color: #86efac !important; }
+  #qr-link {
+    display: block; background: #fff; padding: 8px; border-radius: 8px;
+    cursor: pointer; text-decoration: none;
+  }
+  #qr-label { font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; opacity: 0.6; }
+
+  .danmaku {
+    position: absolute; white-space: pre; font-weight: 700;
+    pointer-events: none; will-change: transform; line-height: 1.4;
+  }
   #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 0.9rem; opacity: 0.3; }
 </style>
 </head>
@@ -38,7 +48,9 @@
 <div id="stats">0 コメント</div>
 <div id="description-bar"></div>
 <div id="qr-box">
-  <div id="qr-canvas"></div>
+  <a id="qr-link" target="_blank">
+    <div id="qr-canvas"></div>
+  </a>
   <div id="qr-label">投稿はこちら</div>
 </div>
 <div id="loading">読み込み中...</div>
@@ -46,23 +58,47 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+// ---- 定数 ----
 const SUPABASE_URL = 'https://izlcztrxwzyqgvbinugd.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bGN6dHJ4d3p5cWd2YmludWdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTg3OTYsImV4cCI6MjA5NTk3NDc5Nn0.TTZnwaxJays6p_0tlGUGGHj4zx0cav6-jEsgKdGpPuk';
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const TRACKS       = 20;
+const BASE_DURATION = 12;
 
-const params    = new URLSearchParams(window.location.search);
-const sessionId = params.get('id') || 'default';
+const client    = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sessionId = new URLSearchParams(window.location.search).get('id') || 'default';
 
+// ---- 文字サイズ計算 ----
+function rand(a, b) { return a + Math.random() * (b - a); }
+function calcSize(text) {
+  const len = text.length;
+  if (len <= 3)  return Math.floor(rand(36, 42));
+  if (len <= 8)  return Math.floor(rand(26, 32));
+  if (len <= 20) return Math.floor(rand(20, 24));
+  if (len <= 40) return Math.floor(rand(18, 20));
+  return 14;
+}
+
+// ---- 縁取りスタイル生成 ----
+function makeTextShadow(strokeColor) {
+  const c = strokeColor || '#000000';
+  return `2px 2px 0 ${c}, -2px -2px 0 ${c}, 2px -2px 0 ${c}, -2px 2px 0 ${c}, 0 2px 0 ${c}, 0 -2px 0 ${c}, 2px 0 0 ${c}, -2px 0 0 ${c}`;
+}
+
+// ---- 初期化 ----
 async function init() {
   const { data } = await client.from('sessions').select('*').eq('id', sessionId).single();
   document.getElementById('loading').style.display = 'none';
 
-  let cfg = { session_name: sessionId, event_name: '', description: '', bg_color: '#000000', fg_color: '#ffffff', speed: 1 };
-  if (data) cfg = { ...cfg, ...data };
+  const cfg = {
+    session_name: sessionId, event_name: '', description: '',
+    bg_color: '#000000', fg_color: '#ffffff', speed: 1,
+    ...(data || {})
+  };
 
-  const fgColor = cfg.fg_color || '#ffffff';
-  const bgColor = cfg.bg_color || '#000000';
-  const speed   = parseFloat(cfg.speed) || 1;
+  const fgColor     = cfg.fg_color     || '#ffffff';
+  const bgColor     = cfg.bg_color     || '#000000';
+  const strokeColor = cfg.text_stroke_color || '#000000';
+  const speed       = parseFloat(cfg.speed) || 1;
 
   document.body.style.background = bgColor;
   document.getElementById('session-name').textContent = cfg.session_name || sessionId;
@@ -78,39 +114,39 @@ async function init() {
     const bar = document.getElementById('description-bar');
     bar.style.color = fgColor;
     bar.style.display = 'block';
-    // 改行を<br>に変換（textContentでHTMLは無効化）
     bar.innerHTML = cfg.description
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/\n/g,'<br>');
   }
   document.getElementById('qr-label').style.color = fgColor;
 
+  // QR: 白背景・黒色固定、クリックで投稿URLへ
   const postUrl = location.href.replace('display.html', 'post.html').replace(/\?.*/, '') + '?id=' + encodeURIComponent(sessionId);
+  document.getElementById('qr-link').href = postUrl;
   new QRCode(document.getElementById('qr-canvas'), {
     text: postUrl, width: 180, height: 180,
-    colorDark: fgColor, colorLight: '#00000000'
+    colorDark: '#000000', colorLight: '#ffffff'
   });
 
-  startRealtime(sessionId, fgColor, speed);
+  startRealtime(sessionId, fgColor, strokeColor, speed);
 }
 
-function startRealtime(sessionId, fgColor, speed) {
+// ---- リアルタイム弾幕 ----
+function startRealtime(sessionId, fgColor, strokeColor, speed) {
   const screen = document.getElementById('screen');
   const stats  = document.getElementById('stats');
   let count = 0;
-  const TRACKS = 20;
   const trackLastEnd = new Array(TRACKS).fill(0);
 
   function getTrackY(i) {
-    const topMargin = 160;
+    const topMargin    = 160;
     const bottomMargin = 220;
-    const usableHeight = screen.offsetHeight - topMargin - bottomMargin;
-    // 20本を均等配置。偶数インデックス(0,2,4...)が1,2,3...番、奇数インデックス(1,3,5...)がその中間
-    const halfTracks = TRACKS / 2;
-    const trackSpacing = usableHeight / halfTracks;
-    const trackIndex = Math.floor(i / 2);
-    const offset = (i % 2 === 1) ? Math.round(trackSpacing / 2) : 0;
-    return topMargin + Math.round(trackSpacing * trackIndex) + offset;
+    const usable       = screen.offsetHeight - topMargin - bottomMargin;
+    const halfTracks   = TRACKS / 2;
+    const spacing      = usable / halfTracks;
+    const idx          = Math.floor(i / 2);
+    const offset       = (i % 2 === 1) ? Math.round(spacing / 2) : 0;
+    return topMargin + Math.round(spacing * idx) + offset;
   }
 
   function pickTrack() {
@@ -126,10 +162,10 @@ function startRealtime(sessionId, fgColor, speed) {
     const w = el.offsetWidth;
     document.body.removeChild(el);
     const effectiveSpeed = speed * (speedMult || 1);
-    const duration = (12 / effectiveSpeed) + Math.random() * (3 / effectiveSpeed);
+    const duration = (BASE_DURATION / effectiveSpeed) + Math.random() * (3 / effectiveSpeed);
     trackLastEnd[track] = Date.now() + duration * 1000;
-    el.style.top = getTrackY(track) + 'px';
-    el.style.left = screen.offsetWidth + 'px';
+    el.style.top        = getTrackY(track) + 'px';
+    el.style.left       = screen.offsetWidth + 'px';
     el.style.transition = `transform ${duration}s linear`;
     screen.appendChild(el);
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -139,34 +175,30 @@ function startRealtime(sessionId, fgColor, speed) {
   }
 
   function launch(text, isQuestion) {
-    const el = document.createElement('div');
-    el.className = 'danmaku' + (isQuestion ? ' is-question' : '');
+    const el    = document.createElement('div');
+    const color = isQuestion ? '#fb923c' : fgColor;
+    const size  = calcSize(text);
+    el.className   = 'danmaku';
     el.textContent = (isQuestion ? '❓ ' : '') + text;
-    el.style.color = isQuestion ? '#fb923c' : fgColor;
-    el.style.fontSize = '2.2rem';
+    el.style.color      = color;
+    el.style.fontSize   = size + 'px';
+    el.style.textShadow = makeTextShadow(strokeColor);
     scrollElement(el, pickTrack(), 1);
     count++;
     stats.textContent = count + ' コメント';
+
+    // マイルストーン（100件ごと）は次フェーズで実装
   }
 
-  async function launchReaction(displayText) {
+  function launchReaction(displayText) {
     const isAgree = displayText.startsWith('同意→');
-    // 同意の場合、元コメントが非表示でないか確認
-    if (isAgree) {
-      const originalText = displayText.slice(3); // 「同意→」を除いた本文
-      const { data } = await client.from('comments')
-        .select('is_hidden')
-        .eq('text', originalText)
-        .eq('session_id', sessionId)
-        .eq('is_hidden', true)
-        .limit(1);
-      if (data && data.length > 0) return; // 非表示コメントへの同意はスキップ
-    }
-    const el = document.createElement('div');
-    el.className = 'danmaku' + (isAgree ? ' is-agree' : '');
+    const el      = document.createElement('div');
+    const size    = calcSize(displayText);
+    el.className   = 'danmaku' + (isAgree ? ' is-agree' : '');
     el.textContent = displayText;
-    el.style.fontSize = '2.2rem';
-    if (!isAgree) el.style.color = fgColor;
+    el.style.fontSize   = size + 'px';
+    el.style.color      = isAgree ? '#86efac' : fgColor;
+    el.style.textShadow = makeTextShadow(strokeColor);
     scrollElement(el, pickTrack(), isAgree ? 1.5 : 1);
   }
 
@@ -177,7 +209,14 @@ function startRealtime(sessionId, fgColor, speed) {
     }).subscribe();
 
   client.channel('reactions-' + sessionId)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reactions', filter: 'session_id=eq.' + sessionId }, p => {
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reactions', filter: 'session_id=eq.' + sessionId }, async p => {
+      if (p.new.type.startsWith('同意→')) {
+        const originalText = p.new.type.slice(3);
+        const { data } = await client.from('comments')
+          .select('is_hidden').eq('text', originalText)
+          .eq('session_id', sessionId).eq('is_hidden', true).limit(1);
+        if (data && data.length > 0) return;
+      }
       launchReaction(p.new.type);
     }).subscribe();
 }
