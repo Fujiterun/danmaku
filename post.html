@@ -2,198 +2,266 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>コメント投稿</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #0f0f1a; color: #fff; font-family: 'Noto Sans JP', sans-serif;
-    min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 24px 20px; gap: 20px;
-  }
-  .header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
-  .event-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; }
-  .page-title  { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.06em; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Noto Sans JP', sans-serif; background: #0f0f1a; color: #fff; }
 
+  #app { display: flex; flex-direction: column; height: 100dvh; }
+
+  /* ミニディスプレイ */
+  #mini-display {
+    flex: 0 0 33%; position: relative; overflow: hidden;
+    background: #000; border-bottom: 1px solid rgba(255,255,255,0.1);
+    transition: flex 0.3s ease;
+  }
+  #mini-display.hidden-display { flex: 0 0 0px; overflow: hidden; border-bottom: none; }
+  #mini-display-label { position: absolute; top: 8px; left: 12px; z-index: 10; font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 0.06em; }
+  #mini-session-name  { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+  #mini-count         { position: absolute; top: 8px; right: 12px; z-index: 10; font-size: 0.65rem; color: rgba(255,255,255,0.2); }
+  #fullscreen-btn {
+    position: absolute; bottom: 8px; right: 10px; z-index: 20;
+    padding: 4px 10px; font-size: 0.7rem;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px; color: rgba(255,255,255,0.5); cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  #mini-display.fullscreen {
+    position: fixed; inset: 0; z-index: 200; flex: unset; height: 100dvh; width: 100vw; border-bottom: none;
+  }
+  #mini-display.fullscreen + #display-toggle-bar,
+  #mini-display.fullscreen ~ #post-area { display: none; }
+
+  .danmaku {
+    position: absolute; white-space: nowrap; font-weight: 700;
+    pointer-events: none; will-change: transform; line-height: 1.3;
+  }
+  .danmaku.is-question {
+    border: 1.5px solid currentColor; border-radius: 4px;
+    padding: 1px 6px; background: rgba(0,0,0,0.4);
+  }
+
+  /* トグルバー */
+  #display-toggle-bar {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+    padding: 8px 16px; cursor: pointer;
+    background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: background 0.15s;
+  }
+  #display-toggle-bar:hover { background: rgba(255,255,255,0.08); }
+  #display-toggle-bar span  { font-size: 0.72rem; color: rgba(255,255,255,0.35); letter-spacing: 0.04em; }
+
+  /* 無効画面 */
   #disabled-screen {
-    display: none; text-align: center;
-    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
-    border-radius: 16px; padding: 32px 24px; max-width: 400px; width: 100%;
+    display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 32px 24px; gap: 12px;
   }
-  #disabled-screen .icon { font-size: 2.5rem; margin-bottom: 12px; }
-  #disabled-screen p { color: #ef4444; font-size: 1rem; font-weight: 700; }
-  #disabled-screen small { color: rgba(255,255,255,0.3); font-size: 0.82rem; margin-top: 8px; display: block; }
+  #disabled-screen .icon { font-size: 2.5rem; }
+  #disabled-screen p     { color: #ef4444; font-size: 1rem; font-weight: 700; }
+  #disabled-screen small { color: rgba(255,255,255,0.3); font-size: 0.82rem; }
 
-  #post-content { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; gap: 20px; }
+  /* 投稿エリア */
+  #post-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; }
 
   .card {
-    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
   }
-  .card label { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; }
   textarea {
     width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 10px; color: #fff; font-family: 'Noto Sans JP', sans-serif;
-    font-size: 1.05rem; padding: 12px 14px; resize: none; height: 90px; outline: none; line-height: 1.6;
+    border-radius: 8px; color: #fff; font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1rem; padding: 10px 12px; resize: none; height: 76px; outline: none; line-height: 1.5;
   }
   textarea:focus { border-color: rgba(255,255,255,0.4); }
   textarea::placeholder { color: rgba(255,255,255,0.25); }
+  textarea:disabled { opacity: 0.4; }
 
-  .counter-row { display: flex; align-items: center; gap: 10px; }
-  .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; }
-  .progress-fill { height: 100%; width: 0%; border-radius: 4px; background: #4f46e5; transition: width 0.1s, background 0.2s; }
-  .counter-num { font-size: 0.78rem; color: rgba(255,255,255,0.4); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+  .counter-row { display: flex; align-items: center; gap: 8px; }
+  .progress-track { flex: 1; height: 3px; background: rgba(255,255,255,0.12); border-radius: 3px; overflow: hidden; }
+  .progress-fill  { height: 100%; width: 0%; border-radius: 3px; background: #4f46e5; transition: width 0.1s, background 0.2s; }
+  .counter-num    { font-size: 0.72rem; color: rgba(255,255,255,0.4); min-width: 36px; text-align: right; }
   .counter-num.warn { color: #f59e0b; }
   .counter-num.over { color: #ef4444; }
 
   .question-toggle {
-    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; cursor: pointer; user-select: none; transition: background 0.15s, border-color 0.15s;
+    border-radius: 8px; cursor: pointer; user-select: none; transition: background 0.15s;
   }
   .question-toggle.active { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.4); }
-  .question-toggle .q-icon { font-size: 1.2rem; }
-  .question-toggle .q-text { font-size: 0.9rem; color: rgba(255,255,255,0.6); flex: 1; }
+  .question-toggle .q-text { font-size: 0.85rem; color: rgba(255,255,255,0.6); flex: 1; }
   .question-toggle.active .q-text { color: #fbbf24; font-weight: 700; }
   .question-toggle .q-check {
-    width: 20px; height: 20px; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 6px;
-    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
-    transition: background 0.15s, border-color 0.15s;
+    width: 18px; height: 18px; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center; font-size: 0.7rem;
   }
   .question-toggle.active .q-check { background: #fbbf24; border-color: #fbbf24; color: #000; }
 
-  .btn-row { display: flex; gap: 10px; width: 100%; }
   .send-btn {
-    flex: 1; padding: 14px; background: #4f46e5; color: #fff;
-    font-family: 'Noto Sans JP', sans-serif; font-size: 1rem; font-weight: 700;
-    border: none; border-radius: 10px; cursor: pointer; letter-spacing: 0.05em;
-    transition: background 0.15s, transform 0.1s;
+    width: 100%; padding: 12px; background: #4f46e5; color: #fff;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.95rem; font-weight: 700;
+    border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s, transform 0.1s;
   }
-  .send-btn:active { transform: scale(0.97); background: #3730a3; }
+  .send-btn:active   { transform: scale(0.97); background: #3730a3; }
   .send-btn:disabled { background: #333; color: rgba(255,255,255,0.3); cursor: default; }
 
-  /* ディスプレイへの遷移ボタン */
-  .display-btn {
-    padding: 14px 16px; background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6);
-    font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem;
-    border-radius: 10px; cursor: pointer; white-space: nowrap;
-    transition: background 0.15s, transform 0.1s; text-decoration: none;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .display-btn:active { transform: scale(0.97); }
-
-  .reactions-title { font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.05em; text-align: center; }
-  .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+  .reactions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .react-btn {
-    padding: 18px 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px; color: #fff; font-family: 'Noto Sans JP', sans-serif; cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    transition: background 0.15s, transform 0.1s;
+    padding: 12px 8px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2); border-bottom: 3px solid rgba(255,255,255,0.25);
+    border-radius: 10px; color: #fff; font-family: 'Noto Sans JP', sans-serif; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: background 0.1s, transform 0.08s, border-bottom 0.08s;
+    user-select: none; -webkit-user-select: none; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
-  .react-label { font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 700; text-align: center; }
-  .react-btn:active { transform: scale(0.94); background: rgba(255,255,255,0.12); }
+  .react-label { font-size: 0.82rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+  .react-btn:active  { transform: scale(0.95) translateY(2px); border-bottom-width: 1px; background: rgba(255,255,255,0.15); }
+  .react-btn:disabled { opacity: 0.3; cursor: default; }
+  .react-btn.popped  { animation: reactPop 0.18s ease-out; }
+  @keyframes reactPop { 0%{transform:scale(1)} 40%{transform:scale(0.92) translateY(2px)} 100%{transform:scale(1)} }
 
   /* コメント履歴 */
   .history-section { width: 100%; }
   .history-toggle {
-    width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.04);
+    width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
     color: rgba(255,255,255,0.6); font-family: 'Noto Sans JP', sans-serif;
-    font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-    transition: background 0.15s;
+    font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
   }
-  .history-toggle:active { background: rgba(255,255,255,0.08); }
-  .history-toggle .arrow { font-size: 0.8rem; transition: transform 0.2s; }
+  .history-toggle .arrow { font-size: 0.75rem; transition: transform 0.2s; }
   .history-toggle.open .arrow { transform: rotate(180deg); }
   .history-body { display: none; margin-top: 8px; }
   .history-body.open { display: block; }
-  .history-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  .history-toolbar { display: flex; justify-content: flex-end; margin-bottom: 8px; }
   .reload-btn {
-    padding: 6px 14px; font-size: 0.8rem; background: rgba(255,255,255,0.07);
+    padding: 5px 12px; font-size: 0.75rem; background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
     color: rgba(255,255,255,0.5); cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
   }
-  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-list { display: flex; flex-direction: column; gap: 6px; }
   .history-item {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
+    border-radius: 8px; padding: 10px 12px; display: flex; align-items: flex-start; gap: 8px;
   }
   .history-item.is-q { border-color: rgba(251,191,36,0.25); background: rgba(251,191,36,0.04); }
   .history-body-text { flex: 1; }
-  .history-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 4px; }
-  .history-meta { font-size: 0.7rem; color: rgba(255,255,255,0.25); display: flex; align-items: center; gap: 8px; }
-  .q-tag { font-size: 0.68rem; padding: 1px 6px; background: rgba(251,191,36,0.15); color: #fbbf24; border-radius: 4px; }
+  .history-text { font-size: 0.88rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 3px; }
+  .history-meta { font-size: 0.68rem; color: rgba(255,255,255,0.25); }
+  .q-tag { font-size: 0.65rem; padding: 1px 5px; background: rgba(251,191,36,0.15); color: #fbbf24; border-radius: 4px; }
   .agree-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 8px 10px; min-width: 52px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 8px; min-width: 44px; flex-shrink: 0;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
-    transition: background 0.15s, transform 0.1s;
+    border-radius: 7px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.15s;
   }
-  .agree-btn:active { transform: scale(0.93); }
-  .agree-btn.agreed { background: rgba(79,70,229,0.2); border-color: rgba(79,70,229,0.5); }
-  .agree-icon { font-size: 1.1rem; }
-  .agree-count { font-size: 0.72rem; color: rgba(255,255,255,0.45); font-weight: 700; }
+  .agree-btn.agreed  { background: rgba(79,70,229,0.2); border-color: rgba(79,70,229,0.5); }
+  .agree-btn.self    { opacity: 0.25; cursor: default; }
+  .agree-icon  { font-size: 1rem; line-height: 1; }
+  .agree-count { font-size: 0.65rem; color: rgba(255,255,255,0.4); font-weight: 700; }
   .agree-btn.agreed .agree-count { color: #818cf8; }
-  .history-empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.85rem; padding: 24px 0; }
+  .history-empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.82rem; padding: 20px 0; }
+
+  /* スパム警告モーダル */
+  #warn-modal {
+    display: none; position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  #warn-modal.show { display: flex; }
+  .warn-box {
+    background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 320px;
+    text-align: center; display: flex; flex-direction: column; gap: 14px;
+  }
+  .warn-lives { font-size: 1.6rem; letter-spacing: 4px; }
+  .warn-title { font-size: 1.4rem; font-weight: 700; }
+  .warn-title.lv1 { color: #fbbf24; }
+  .warn-title.lv2 { color: #f97316; }
+  .warn-title.lv3 { color: #ef4444; }
+  .warn-msg   { font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+  .warn-btn {
+    padding: 12px; font-size: 0.95rem; font-weight: 700; border: none; border-radius: 10px;
+    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; background: #4f46e5; color: #fff;
+    transition: opacity 0.2s;
+  }
+  .warn-btn:disabled  { opacity: 0.35; cursor: not-allowed; }
+  .warn-timer { font-size: 0.78rem; color: rgba(255,255,255,0.3); min-height: 18px; }
+  .heart-pop  { display: inline-block; animation: heartLose 0.6s ease forwards; }
+  @keyframes heartLose { 0%{transform:scale(1);opacity:1} 40%{transform:scale(1.5);opacity:1} 100%{transform:scale(0);opacity:0} }
 
   .toast {
-    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px);
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); color: #fff;
-    padding: 10px 22px; border-radius: 50px; font-size: 0.9rem;
-    opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap;
+    padding: 8px 20px; border-radius: 50px; font-size: 0.85rem;
+    opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
+<div id="app">
+  <div id="mini-display">
+    <span id="mini-display-label">LIVE</span>
+    <span id="mini-session-name">読み込み中...</span>
+    <span id="mini-count">0 コメント</span>
+    <button id="fullscreen-btn" onclick="toggleFullscreen()">⛶ 全画面</button>
+  </div>
 
-<div class="header">
-  <p class="event-title" id="event-title">読み込み中...</p>
-  <p class="page-title">コメントを送ろう</p>
-</div>
+  <div id="display-toggle-bar" onclick="toggleDisplay()">
+    <span id="display-toggle-label">▲弾幕コメントを非表示▲</span>
+  </div>
 
-<div id="disabled-screen">
-  <div class="icon">⛔</div>
-  <p>無効なセッションです</p>
-  <small>このセッションは現在投稿を受け付けていません</small>
-</div>
+  <div id="disabled-screen">
+    <div class="icon">⛔</div>
+    <p>無効なセッションです</p>
+    <small>このセッションは現在投稿を受け付けていません</small>
+  </div>
 
-<div id="post-content">
-  <div class="card">
-    <label id="comment-label">コメント（55文字以内）</label>
-    <textarea id="text" placeholder="一言どうぞ..." maxlength="55"></textarea>
-    <div class="counter-row">
-      <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
-      <span class="counter-num" id="counter">0 / 55</span>
-    </div>
-    <div class="question-toggle" id="q-toggle">
-      <span class="q-icon">❓</span>
-      <span class="q-text">質問として送る</span>
-      <span class="q-check" id="q-check"></span>
-    </div>
-    <div class="btn-row">
+  <div id="post-area">
+    <div class="card">
+      <textarea id="text" placeholder="コメントをどうぞ（55文字以内）" maxlength="55"></textarea>
+      <div class="counter-row">
+        <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+        <span class="counter-num" id="counter">0 / 55</span>
+      </div>
       <button class="send-btn" id="send-btn">画面に流す 🚀</button>
-      <a class="display-btn" id="display-link" target="_blank">📺 表示画面</a>
+      <div class="question-toggle" id="q-toggle">
+        <span style="font-size:1.1rem">❓</span>
+        <span class="q-text">質問として送る</span>
+        <span class="q-check" id="q-check"></span>
+      </div>
+    </div>
+
+    <div class="reactions" id="reactions-grid"></div>
+
+    <div class="history-section">
+      <button class="history-toggle" id="history-toggle" onclick="toggleHistory()">
+        <span>コメント履歴を見る</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="history-body" id="history-body">
+        <div class="history-toolbar">
+          <button class="reload-btn" onclick="loadHistory()">↺ リロード</button>
+        </div>
+        <div class="history-list" id="history-list">
+          <p class="history-empty">読み込み中...</p>
+        </div>
+      </div>
     </div>
   </div>
-  <p class="reactions-title">リアクションを送る</p>
-  <div class="reactions" id="reactions-grid"></div>
-  <div class="history-section">
-    <button class="history-toggle" id="history-toggle" onclick="toggleHistory()">
-      <span>コメント履歴を見る</span>
-      <span class="arrow">▼</span>
-    </button>
-    <div class="history-body" id="history-body">
-      <div class="history-toolbar">
-        <button class="reload-btn" onclick="loadHistory()">↺ リロード</button>
-      </div>
-      <div class="history-list" id="history-list">
-        <p class="history-empty">読み込み中...</p>
-      </div>
-    </div>
+</div>
+
+<div id="warn-modal">
+  <div class="warn-box">
+    <div class="warn-lives" id="warn-lives"></div>
+    <div class="warn-title" id="warn-title"></div>
+    <div class="warn-msg"   id="warn-msg"></div>
+    <div class="warn-timer" id="warn-timer"></div>
+    <button class="warn-btn" id="warn-btn" onclick="closeWarning()"></button>
+    <button class="warn-btn" id="warn-btn2" onclick="closeWarning2()" style="display:none;background:#374151"></button>
   </div>
 </div>
 
@@ -210,31 +278,22 @@ const DEFAULT_REACTIONS = [
   { label: '面白い',   display: 'wwwwwwwwwwww' },
   { label: 'なるほど', display: '💡' }
 ];
+const TRACKS = 8;
+const TRACK_PATTERN = [0, 5, 2, 7, 4, 1, 6, 3];
 
 const client    = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const sessionId = new URLSearchParams(window.location.search).get('id') || 'default';
-let maxChars  = 55;
-let isBlocked = false;
 
-// ---- ユーティリティ ----
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function escAttr(s) {
-  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-}
-function showDisabled(name) {
-  document.getElementById('event-title').textContent = name || sessionId;
-  document.getElementById('disabled-screen').style.display = 'block';
-  document.getElementById('post-content').style.display = 'none';
-}
+let maxChars      = 55;
+let isBlocked     = false;
+let isQuestion    = false;
+let spamGuardOn   = true;
+let displayVisible = true;
+let historyLoaded = false;
+let trackPatternIdx = 0;
+let miniCount     = 0;
 
-// ---- ユーザーID（localStorage永続化） ----
+// ---- ユーザーID ----
 function getUserId() {
   let uid = localStorage.getItem('danmaku_user_id');
   if (!uid) {
@@ -244,32 +303,62 @@ function getUserId() {
   return uid;
 }
 const userId = getUserId();
+const agreedSet = new Set(JSON.parse(localStorage.getItem('danmaku_agreed_' + sessionId) || '[]'));
+
+// ---- ユーティリティ ----
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+function showDisabled(name) {
+  document.getElementById('mini-session-name').textContent = name || sessionId;
+  document.getElementById('disabled-screen').style.display = 'flex';
+  document.getElementById('post-area').style.display = 'none';
+}
 
 // ---- 初期化 ----
 async function init() {
   const [{ data }, { data: blockData }] = await Promise.all([
-    client.from('sessions').select('session_name, is_active, reactions, max_chars').eq('id', sessionId).single(),
+    client.from('sessions').select('*').eq('id', sessionId).single(),
     client.from('blocked_users').select('id').eq('session_id', sessionId).eq('user_id', userId).limit(1)
   ]);
 
   if (!data || data.is_active === false) { showDisabled(data?.session_name); return; }
-  // ブロック済みユーザーは投稿フォームを非表示（トーストのみ表示）
-  isBlocked = blockData && blockData.length > 0;
 
-  maxChars = data.max_chars || 55;
-  document.getElementById('event-title').textContent = data.session_name;
-  document.getElementById('text').maxLength = maxChars;
-  document.getElementById('comment-label').textContent = `コメント（${maxChars}文字以内）`;
+  isBlocked   = !!(blockData && blockData.length > 0);
+  maxChars    = data.max_chars || 55;
+  spamGuardOn = data.enable_spam_guard !== false;
+
+  document.getElementById('mini-session-name').textContent = data.session_name || sessionId;
+  document.getElementById('text').maxLength    = maxChars;
+  document.getElementById('text').placeholder  = `コメントをどうぞ（${maxChars}文字以内）`;
   document.getElementById('counter').textContent = `0 / ${maxChars}`;
-  document.getElementById('post-content').style.display = 'flex';
 
-  // ディスプレイ遷移ボタンのURL設定
-  const displayUrl = location.href.replace('post.html', 'display.html');
-  document.getElementById('display-link').href = displayUrl;
+  // ミニディスプレイ背景
+  const miniDisp = document.getElementById('mini-display');
+  if (data.bg_color) miniDisp.style.background = data.bg_color;
+  if (data.bg_image_url && data.bg_image_url.includes('izlcztrxwzyqgvbinugd.supabase.co')) {
+    miniDisp.style.backgroundImage    = `url('${data.bg_image_url}')`;
+    miniDisp.style.backgroundSize     = 'cover';
+    miniDisp.style.backgroundPosition = 'center';
+  }
+
+  if (isBlocked) {
+    document.getElementById('send-btn').disabled = true;
+    document.getElementById('send-btn').textContent = '投稿できません';
+    document.getElementById('text').disabled = true;
+    document.getElementById('q-toggle').style.pointerEvents = 'none';
+    document.getElementById('q-toggle').style.opacity = '0.4';
+  }
 
   setupReactions(data.reactions || DEFAULT_REACTIONS);
+  startRealtime(data);
 }
 
+// ---- リアクション設定 ----
 function setupReactions(reactions) {
   const grid = document.getElementById('reactions-grid');
   grid.innerHTML = reactions.map(r =>
@@ -278,9 +367,14 @@ function setupReactions(reactions) {
     </button>`
   ).join('');
   grid.querySelectorAll('.react-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       if (isBlocked) { showToast('このセッションでは送信できません'); return; }
-      await client.from('reactions').insert({ type: btn.dataset.display, session_id: sessionId });
+      if (spamGuardOn && !recordReaction()) return;
+      client.from('reactions').insert({ type: btn.dataset.display, session_id: sessionId });
+      btn.classList.remove('popped');
+      void btn.offsetWidth;
+      btn.classList.add('popped');
+      setTimeout(() => btn.classList.remove('popped'), 200);
       showToast(btn.querySelector('.react-label').textContent + ' を送りました！');
     });
   });
@@ -290,7 +384,6 @@ function setupReactions(reactions) {
 const textarea = document.getElementById('text');
 const progress = document.getElementById('progress');
 const counter  = document.getElementById('counter');
-let isQuestion = false;
 
 textarea.addEventListener('input', () => {
   const pct = Math.min(textarea.value.length / maxChars * 100, 100);
@@ -312,14 +405,11 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   if (!text) return;
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
-
   const { data: check } = await client.from('sessions').select('is_active').eq('id', sessionId).single();
   if (!check || check.is_active === false) { showDisabled(); return; }
-
   const { error } = await client.from('comments').insert({ text, is_question: isQuestion, session_id: sessionId, user_id: userId });
   btn.disabled = false;
   if (error) { showToast('エラーが発生しました'); return; }
-
   textarea.value = '';
   progress.style.width = '0%';
   progress.style.background = '#4f46e5';
@@ -329,79 +419,329 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   document.getElementById('q-toggle').classList.remove('active');
   document.getElementById('q-check').textContent = '';
   showToast('送信しました！');
-
   if (document.getElementById('history-body').classList.contains('open')) loadHistory();
 });
 
-// ---- コメント履歴 ----
-let historyLoaded = false;
-
-function toggleHistory() {
-  const isOpen = document.getElementById('history-body').classList.contains('open');
-  document.getElementById('history-toggle').classList.toggle('open', !isOpen);
-  document.getElementById('history-body').classList.toggle('open', !isOpen);
-  if (!isOpen && !historyLoaded) loadHistory();
+// ---- ミニディスプレイ弾幕 ----
+function rand(a, b) { return a + Math.random() * (b - a); }
+function calcSize(text) {
+  const len = text.length, scale = 0.75;
+  let base;
+  if (len <= 3)       base = rand(36, 42);
+  else if (len <= 8)  base = rand(26, 32);
+  else if (len <= 20) base = rand(20, 24);
+  else if (len <= 40) base = rand(18, 20);
+  else base = 14;
+  return Math.floor(base * scale);
+}
+function makeTextShadow(c) {
+  return `1px 1px 0 ${c},-1px -1px 0 ${c},1px -1px 0 ${c},-1px 1px 0 ${c}`;
 }
 
+const trackLastEnd = new Array(TRACKS).fill(0);
+function getTrackY(i) {
+  const top = 30, usable = document.getElementById('mini-display').offsetHeight - top - 10;
+  return top + Math.floor(usable / TRACKS * i);
+}
+function pickTrack() {
+  const t = TRACK_PATTERN[trackPatternIdx % TRACK_PATTERN.length];
+  trackPatternIdx++;
+  return t;
+}
+
+function launchMini(text, isQ, color) {
+  const screen = document.getElementById('mini-display');
+  const existing = screen.querySelectorAll('.danmaku');
+  if (existing.length >= 40) existing[0].remove();
+
+  const size = isQ ? Math.floor(calcSize(text) * 1.2) : calcSize(text);
+  const el   = document.createElement('div');
+  el.className    = 'danmaku' + (isQ ? ' is-question' : '');
+  el.textContent  = (isQ ? '【❓️】質問です▶ ' : '') + text;
+  el.style.color      = color || '#ffffff';
+  el.style.fontSize   = size + 'px';
+  el.style.textShadow = makeTextShadow('#000');
+
+  document.body.appendChild(el);
+  const w = el.offsetWidth;
+  document.body.removeChild(el);
+
+  const track    = pickTrack();
+  const baseDuration = 10 + Math.random() * 3;
+  const widthRatio   = screen.offsetWidth / 1920;
+  const duration     = Math.max(baseDuration * widthRatio, 2.5);
+  trackLastEnd[track] = Date.now() + duration * 1000;
+
+  el.style.top        = getTrackY(track) + 'px';
+  el.style.left       = screen.offsetWidth + 'px';
+  el.style.transition = `transform ${duration}s linear`;
+  screen.appendChild(el);
+  requestAnimationFrame(() => {
+    el.style.transform = `translateX(${-(screen.offsetWidth + w + 60)}px)`;
+  });
+  setTimeout(() => { try { el.remove(); } catch(e) {} }, (duration + 1) * 1000);
+
+  miniCount++;
+  document.getElementById('mini-count').textContent = miniCount + ' コメント';
+}
+
+// ---- リアルタイム ----
+async function startRealtime(cfg) {
+  const fgColor = cfg.fg_color || '#ffffff';
+  const qColor  = cfg.question_color || '#fb923c';
+  const agColor = cfg.agree_color    || '#86efac';
+  const strokeColor = cfg.text_stroke_color || '#000000';
+
+  // ブロックリスト
+  let blockedSet = new Set();
+  const { data: bdata } = await client.from('blocked_users').select('user_id').eq('session_id', sessionId);
+  blockedSet = new Set((bdata || []).map(b => b.user_id));
+
+  client.channel('blocked-pwd-' + sessionId)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_users', filter: 'session_id=eq.' + sessionId }, async () => {
+      const { data } = await client.from('blocked_users').select('user_id').eq('session_id', sessionId);
+      blockedSet = new Set((data || []).map(b => b.user_id));
+    }).subscribe();
+
+  client.channel('comments-pwd-' + sessionId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: 'session_id=eq.' + sessionId }, p => {
+      if (p.new.is_hidden) return;
+      if (p.new.user_id && blockedSet.has(p.new.user_id)) return;
+      const color = p.new.is_question ? qColor : fgColor;
+      launchMini(p.new.text, p.new.is_question, color);
+    }).subscribe();
+
+  client.channel('reactions-pwd-' + sessionId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reactions', filter: 'session_id=eq.' + sessionId }, async p => {
+      const type = p.new.type;
+      if (type.startsWith('同意→')) {
+        const orig = type.slice(3);
+        const { data } = await client.from('comments').select('is_hidden').eq('text', orig).eq('session_id', sessionId).eq('is_hidden', true).limit(1);
+        if (data && data.length > 0) return;
+      }
+      const isAgree = type.startsWith('同意→');
+      launchMini(type, false, isAgree ? agColor : fgColor);
+    }).subscribe();
+}
+
+// ---- UI制御 ----
+function toggleFullscreen() {
+  const display = document.getElementById('mini-display');
+  const isFS    = display.classList.toggle('fullscreen');
+  document.getElementById('fullscreen-btn').textContent = isFS ? '✕ 閉じる' : '⛶ 全画面';
+}
+
+function toggleDisplay() {
+  displayVisible = !displayVisible;
+  document.getElementById('mini-display').classList.toggle('hidden-display', !displayVisible);
+  document.getElementById('display-toggle-label').textContent = displayVisible
+    ? '▲弾幕コメントを非表示▲' : '▼弾幕コメントを表示▼';
+}
+
+function toggleHistory() {
+  const isOpen  = document.getElementById('history-body').classList.contains('open');
+  const opening = !isOpen;
+  document.getElementById('history-toggle').classList.toggle('open', opening);
+  document.getElementById('history-body').classList.toggle('open', opening);
+
+  const card      = document.querySelector('.card');
+  const reactions = document.getElementById('reactions-grid');
+  const toggleBar = document.getElementById('display-toggle-bar');
+  const miniDisp  = document.getElementById('mini-display');
+
+  if (opening) {
+    if (card)      card.style.display      = 'none';
+    if (reactions) reactions.style.display = 'none';
+    if (toggleBar) toggleBar.style.display = 'none';
+    miniDisp.classList.add('hidden-display');
+    if (!historyLoaded) loadHistory();
+  } else {
+    if (card)      card.style.display      = '';
+    if (reactions) reactions.style.display = '';
+    if (toggleBar) toggleBar.style.display = '';
+    if (displayVisible) miniDisp.classList.remove('hidden-display');
+  }
+}
+
+// ---- コメント履歴 ----
 async function loadHistory() {
   historyLoaded = true;
   const list = document.getElementById('history-list');
   list.innerHTML = '<p class="history-empty">読み込み中...</p>';
-
   const { data, error } = await client.from('comments').select('*')
     .eq('session_id', sessionId).eq('is_hidden', false)
     .order('created_at', { ascending: false }).limit(50);
-
   if (error || !data?.length) { list.innerHTML = '<p class="history-empty">まだコメントはありません</p>'; return; }
-
   list.innerHTML = data.map(c => {
-    const dt = new Date(c.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    const dt      = new Date(c.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    const isSelf  = c.user_id === userId;
+    const agreed  = agreedSet.has(c.id);
     return `
       <div class="history-item ${c.is_question ? 'is-q' : ''}">
         <div class="history-body-text">
-          <div class="history-text" ${c.is_question ? 'style="border:1.5px solid #fbbf24;border-radius:5px;padding:2px 8px;background:rgba(251,191,36,0.06)"' : ''}>
-            ${c.is_question ? '<span style="font-size:0.8em;margin-right:4px">【❓️】質問です▶</span>' : ''}${escHtml(c.text)}
-          </div>
+          <div class="history-text">${c.is_question ? '<span style="font-size:0.75em;margin-right:3px">【❓️】質問です▶</span>' : ''}${escHtml(c.text)}</div>
           <div class="history-meta">${dt}${c.is_question ? ' <span class="q-tag">❓ 質問</span>' : ''}</div>
         </div>
-        ${c.user_id === userId
-          ? `<div class="agree-btn" style="opacity:0.25;cursor:default" title="自分のコメントには同意できません">
-              <span class="agree-icon">👍</span>
-              <span class="agree-count">${c.agree_count || 0}</span>
-             </div>`
-          : `<button class="agree-btn" id="agree-${c.id}" data-id="${c.id}" data-text="${escAttr(c.text)}">
+        ${isSelf
+          ? `<div class="agree-btn self"><span class="agree-icon">👍</span><span class="agree-count">${c.agree_count || 0}</span></div>`
+          : `<button class="agree-btn ${agreed ? 'agreed' : ''}" id="agree-${c.id}" data-id="${c.id}" data-text="${escAttr(c.text)}">
               <span class="agree-icon">👍</span>
               <span class="agree-count" id="agree-count-${c.id}">${c.agree_count || 0}</span>
              </button>`}
       </div>`;
   }).join('');
-
-  list.querySelectorAll('.agree-btn').forEach(btn => {
+  list.querySelectorAll('.agree-btn:not(.self):not(.agreed)').forEach(btn => {
     btn.addEventListener('click', () => sendAgree(btn.dataset.id, btn.dataset.text));
   });
 }
 
 async function sendAgree(commentId, commentText) {
   const btn = document.getElementById('agree-' + commentId);
-  if (btn.classList.contains('agreed')) return;
+  if (!btn || btn.classList.contains('agreed')) return;
   btn.classList.add('agreed');
+  agreedSet.add(commentId);
+  localStorage.setItem('danmaku_agreed_' + sessionId, JSON.stringify([...agreedSet]));
   try {
-    const { data: cur, error: fetchErr } = await client.from('comments').select('agree_count').eq('id', commentId).single();
-    if (fetchErr) throw fetchErr;
+    const { data: cur } = await client.from('comments').select('agree_count').eq('id', commentId).single();
     const newCount = (cur?.agree_count || 0) + 1;
-    const { error: updateErr } = await client.from('comments').update({ agree_count: newCount }).eq('id', commentId);
-    if (updateErr) throw updateErr;
+    await client.from('comments').update({ agree_count: newCount }).eq('id', commentId);
     await client.from('comment_agrees').insert({ comment_id: commentId });
-    document.getElementById('agree-count-' + commentId).textContent = newCount;
-    const { error: reactErr } = await client.from('reactions').insert({ type: '同意→' + commentText, session_id: sessionId });
-    if (reactErr) throw reactErr;
+    const el = document.getElementById('agree-count-' + commentId);
+    if (el) el.textContent = newCount;
+    await client.from('reactions').insert({ type: '同意→' + commentText, session_id: sessionId });
     showToast('同意しました！');
-  } catch (err) {
-    // 失敗時はボタンを元に戻す
+  } catch(e) {
     btn.classList.remove('agreed');
+    agreedSet.delete(commentId);
     showToast('エラーが発生しました');
   }
 }
+
+// ---- スパムガード ----
+let lives      = 3;
+let warnLevel  = 0;
+let isSilenced = false;
+let reactTimes = [];
+let spamStart  = null;
+
+function makeLivesIcon(n) {
+  const full  = Math.max(0, Math.min(3, n));
+  const empty = Math.max(0, 3 - full);
+  let s = '';
+  for (let i = 0; i < full;  i++) s += '❤️';
+  for (let i = 0; i < empty; i++) s += '🖤';
+  return s || '💀';
+}
+function updateLivesBar(animate) {
+  const warnLives = document.getElementById('warn-lives');
+  if (!warnLives) return;
+  const fullIcon = lives <= 0 ? '💀' : makeLivesIcon(lives);
+  if (animate) {
+    const losing = document.createElement('span');
+    losing.textContent = '❤️';
+    losing.className   = 'heart-pop';
+    warnLives.textContent = makeLivesIcon(lives);
+    warnLives.appendChild(losing);
+    setTimeout(() => { try { losing.remove(); } catch(e) {} warnLives.textContent = fullIcon; }, 650);
+  } else {
+    warnLives.textContent = fullIcon;
+  }
+}
+
+function recordReaction() {
+  if (isSilenced) return false;
+  const now = Date.now();
+  reactTimes.push(now);
+  reactTimes = reactTimes.filter(t => now - t <= 1000);
+  if (reactTimes.length >= 2) {
+    if (!spamStart) spamStart = now;
+    if (now - spamStart >= 5500) {
+      triggerWarning();
+      reactTimes = [];
+      spamStart  = null;
+      return false;
+    }
+  } else {
+    spamStart = null;
+  }
+  return true;
+}
+
+function triggerWarning() {
+  warnLevel++;
+  lives = Math.max(0, lives - 1);
+  updateLivesBar(true);
+
+  const timerEl = document.getElementById('warn-timer');
+  const btn     = document.getElementById('warn-btn');
+  const btn2    = document.getElementById('warn-btn2');
+  const title   = document.getElementById('warn-title');
+  const msg     = document.getElementById('warn-msg');
+
+  btn.onclick    = closeWarning;
+  btn2.style.display = 'none';
+  if (timerEl) timerEl.textContent = '';
+
+  if (warnLevel === 1) {
+    title.textContent = '落ち着いて！';
+    title.className   = 'warn-title lv1';
+    msg.textContent   = 'リアクションの連打が検出されました。';
+    btn.textContent   = 'わかりました';
+    btn.disabled      = false;
+  } else if (warnLevel === 2) {
+    title.textContent = 'うるさいよ！';
+    title.className   = 'warn-title lv2';
+    msg.textContent   = 'また連打しましたね。少し落ち着いてください。';
+    btn.textContent   = 'わかりました';
+    btn.disabled      = true;
+    startBtnCountdown(btn, 10, () => {});
+  } else if (warnLevel === 3) {
+    title.textContent = '迷惑だよ！';
+    title.className   = 'warn-title lv3';
+    msg.textContent   = '3回目の警告です。次に連打したら投稿できなくなります。';
+    btn.textContent   = 'わかりました';
+    btn.disabled      = true;
+    startBtnCountdown(btn, 10, () => {
+      btn.onclick = () => {
+        btn.style.display  = 'none';
+        btn2.style.display = 'block';
+        btn2.textContent   = '2度としません';
+        btn2.disabled      = true;
+        startBtnCountdown(btn2, 10, () => {});
+      };
+    });
+  } else {
+    isSilenced = true;
+    document.getElementById('warn-modal').classList.remove('show');
+    showToast('投稿が制限されました');
+    document.getElementById('send-btn').disabled = true;
+    document.getElementById('send-btn').textContent = '投稿できません';
+    document.querySelectorAll('.react-btn').forEach(b => { b.disabled = true; });
+    return;
+  }
+  document.getElementById('warn-modal').classList.add('show');
+}
+
+function startBtnCountdown(btn, sec, onDone) {
+  const timerEl = document.getElementById('warn-timer');
+  let remaining = sec;
+  btn.disabled  = true;
+  if (timerEl) timerEl.textContent = `${remaining}秒後に操作できます`;
+  const iv = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(iv);
+      btn.disabled = false;
+      if (timerEl) timerEl.textContent = '';
+      if (onDone) onDone();
+    } else {
+      if (timerEl) timerEl.textContent = `${remaining}秒後に操作できます`;
+    }
+  }, 1000);
+}
+
+function closeWarning()  { document.getElementById('warn-modal').classList.remove('show'); }
+function closeWarning2() { document.getElementById('warn-modal').classList.remove('show'); }
 
 init();
 </script>

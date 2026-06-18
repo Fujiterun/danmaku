@@ -356,6 +356,17 @@
           </label>
         </div>
       </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>スパムガード</label>
+        <div class="toggle-row" style="margin:0">
+          <span class="toggle-label">リアクション連打に対して警告を表示する</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="f-spam-guard" checked />
+            <span class="toggle-track"></span>
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+      </div>
       <div class="field-row-3">
         <div class="field">
           <label>縁取り色</label>
@@ -819,6 +830,7 @@ function openNewForm() {
   document.getElementById('f-title-color').value = '';
   document.getElementById('f-desc-color').value  = '';
   document.getElementById('f-show-qr').checked = true;
+  document.getElementById('f-spam-guard').checked = true;
   document.getElementById('f-speed').value = 1;
   document.getElementById('f-speed-val').textContent = '1x';
   document.getElementById('f-max-chars').value = 55;
@@ -858,7 +870,8 @@ function openEditForm(id) {
   setColorField('f-agree-color',s.agree_color    || '#86efac');
   document.getElementById('f-title-color').value = s.title_color || '';
   document.getElementById('f-desc-color').value  = s.desc_color  || '';
-  document.getElementById('f-show-qr').checked = s.show_qr !== false;
+  document.getElementById('f-show-qr').checked    = s.show_qr !== false;
+  document.getElementById('f-spam-guard').checked = s.enable_spam_guard !== false;
   document.getElementById('f-speed').value = s.speed || 1;
   document.getElementById('f-speed-val').textContent = (s.speed || 1) + 'x';
   document.getElementById('f-max-chars').value = s.max_chars || 55;
@@ -931,7 +944,8 @@ async function saveSession() {
     title_color: tColor, desc_color: dColor,
     speed, max_chars: maxChars, reactions,
     bg_image_url: bgImageUrl,
-    show_qr: document.getElementById('f-show-qr').checked
+    show_qr: document.getElementById('f-show-qr').checked,
+    enable_spam_guard: document.getElementById('f-spam-guard').checked
   };
   const { error } = editingId
     ? await client.from('sessions').update(payload).eq('id', editingId)
