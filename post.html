@@ -367,10 +367,11 @@ function setupReactions(reactions) {
     </button>`
   ).join('');
   grid.querySelectorAll('.react-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       if (isBlocked) { showToast('このセッションでは送信できません'); return; }
       if (spamGuardOn && !recordReaction()) return;
-      client.from('reactions').insert({ type: btn.dataset.display, session_id: sessionId });
+      const { error: rErr } = await client.from('reactions').insert({ type: btn.dataset.display, session_id: sessionId });
+      if (rErr) { showToast('エラーが発生しました'); return; }
       btn.classList.remove('popped');
       void btn.offsetWidth;
       btn.classList.add('popped');
