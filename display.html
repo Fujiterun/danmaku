@@ -106,7 +106,7 @@ async function init() {
     session_name: sessionId, event_name: '', description: '',
     bg_color: '#000000', fg_color: '#ffffff', speed: 1,
     text_stroke_color: '#000000', question_color: '#fb923c', agree_color: '#86efac',
-    title_color: null, desc_color: null,
+    title_color: null, desc_color: null, font_scale: 1.0,
     ...data
   };
 
@@ -165,11 +165,12 @@ async function init() {
     });
   }
 
-  await startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed });
+  const fontScale = parseFloat(cfg.font_scale) || 1.0;
+  await startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed, fontScale });
 }
 
 // ---- リアルタイム弾幕 ----
-async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed }) {
+async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor, speed, fontScale }) {
   const screen    = document.getElementById('screen');
   const stats     = document.getElementById('stats');
   const isMobile  = window.innerWidth <= 600;
@@ -216,8 +217,8 @@ async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor,
   function launch(text, isQuestion) {
     const color = isQuestion ? qColor : fgColor;
     const baseSize = calcSize(text);
-    // 質問は1.2倍サイズ
-    const size  = isQuestion ? Math.floor(baseSize * 1.2) : baseSize;
+    // 質問は1.2倍・font_scaleを乗算
+    const size  = Math.floor((isQuestion ? baseSize * 1.2 : baseSize) * fontScale);
     const el    = document.createElement('div');
     el.className    = 'danmaku' + (isQuestion ? ' is-question' : '');
     el.textContent  = (isQuestion ? '【❓️】質問です▶ ' : '') + text;
@@ -239,7 +240,7 @@ async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor,
     const el   = document.createElement('div');
     el.className    = 'danmaku';
     el.textContent  = text;
-    el.style.fontSize   = '3.5rem';
+    el.style.fontSize   = Math.floor(3.5 * 16 * fontScale) + 'px';
     el.style.color      = '#ffe66d';
     el.style.textShadow = makeTextShadow('#000000');
     el.style.zIndex     = '50';
@@ -257,7 +258,7 @@ async function startRealtime(sessionId, { fgColor, strokeColor, qColor, agColor,
         .eq('session_id', sessionId).eq('is_hidden', true).limit(1);
       if (data && data.length > 0) return;
     }
-    const size = calcSize(displayText);
+    const size = Math.floor(calcSize(displayText) * fontScale);
     const el   = document.createElement('div');
     el.className    = 'danmaku';
     el.textContent  = displayText;

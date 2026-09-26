@@ -331,6 +331,7 @@ async function init() {
   isBlocked   = !!(blockData && blockData.length > 0);
   maxChars    = data.max_chars || 55;
   spamGuardOn = data.enable_spam_guard !== false;
+  fontScale   = parseFloat(data.font_scale) || 1.0;
 
   document.getElementById('mini-session-name').textContent = data.session_name || sessionId;
   document.getElementById('text').maxLength    = maxChars;
@@ -455,7 +456,7 @@ function launchMini(text, isQ, color) {
   const existing = screen.querySelectorAll('.danmaku');
   if (existing.length >= 40) existing[0].remove();
 
-  const size = isQ ? Math.floor(calcSize(text) * 1.2) : calcSize(text);
+  const size = Math.floor((isQ ? calcSize(text) * 1.2 : calcSize(text)) * fontScale);
   const el   = document.createElement('div');
   el.className    = 'danmaku' + (isQ ? ' is-question' : '');
   el.textContent  = (isQ ? '【❓️】質問です▶ ' : '') + text;

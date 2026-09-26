@@ -829,6 +829,8 @@ function openNewForm() {
   setColorField('f-agree-color','#86efac');
   document.getElementById('f-title-color').value = '';
   document.getElementById('f-desc-color').value  = '';
+  document.getElementById('f-font-scale').value = 1;
+  document.getElementById('f-font-scale-val').textContent = '1.0x';
   document.getElementById('f-show-qr').checked = true;
   document.getElementById('f-spam-guard').checked = true;
   document.getElementById('f-speed').value = 1;
@@ -870,6 +872,8 @@ function openEditForm(id) {
   setColorField('f-agree-color',s.agree_color    || '#86efac');
   document.getElementById('f-title-color').value = s.title_color || '';
   document.getElementById('f-desc-color').value  = s.desc_color  || '';
+  document.getElementById('f-font-scale').value = s.font_scale || 1;
+  document.getElementById('f-font-scale-val').textContent = (s.font_scale || 1).toFixed(1) + 'x';
   document.getElementById('f-show-qr').checked    = s.show_qr !== false;
   document.getElementById('f-spam-guard').checked = s.enable_spam_guard !== false;
   document.getElementById('f-speed').value = s.speed || 1;
@@ -945,7 +949,8 @@ async function saveSession() {
     speed, max_chars: maxChars, reactions,
     bg_image_url: bgImageUrl,
     show_qr: document.getElementById('f-show-qr').checked,
-    enable_spam_guard: document.getElementById('f-spam-guard').checked
+    enable_spam_guard: document.getElementById('f-spam-guard').checked,
+    font_scale: parseFloat(document.getElementById('f-font-scale').value)
   };
   const { error } = editingId
     ? await client.from('sessions').update(payload).eq('id', editingId)
